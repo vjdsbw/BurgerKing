@@ -4,6 +4,7 @@ import {resolve} from 'path'
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import {VantResolver} from '@vant/auto-import-resolver';
+import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import Pages from 'vite-plugin-pages'
 import Layouts from 'vite-plugin-vue-layouts'
 import VueSetupExtend from 'vite-plugin-vue-setup-extend'
@@ -21,7 +22,7 @@ export default defineConfig({
         /\.md$/ // .md
       ],
       imports: ['vue', 'vue-router', 'pinia'],
-      resolvers: [VantResolver()],
+      resolvers: [VantResolver(),NaiveUiResolver()],
       dts: 'types/auto-imports.d.ts',
       eslintrc: {
         enabled: true,
@@ -33,7 +34,7 @@ export default defineConfig({
       dts: 'types/components.d.ts',
       extensions: ['vue'],
       dirs: ['src/components'],
-      resolvers: [VantResolver()]
+      resolvers: [VantResolver(),NaiveUiResolver()]
     }),
     Pages({
       dirs: 'src/views', // 需要生成路由的文件目录
