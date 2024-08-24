@@ -2,10 +2,14 @@
 import HamBurger from '@/assets/H5/HamBurger.png'
 import ShopBag from "@/assets/H5/ShopBag.png"
 import StoreDining from "@/assets/H5/StoreDining.png"
+import { goodInfoApi, promotionCalculateApi, orderCalculateApi, orderCreateApi } from "@/api/storeApi"
+import { Store } from "@/store";
+
+const { user, order } = Store();
 
 const router = useRouter()
 
-const onClickLeft = () => history.back();
+const onClickLeft = () => router.push(`/h5?code=${user.code}`)
 
 const orderingMethod = ref<'Dine' | 'besides'>('Dine')
 
@@ -13,23 +17,151 @@ const chooseMethod = (type: 'Dine' | 'besides') => {
     orderingMethod.value = type
 }
 
-const PackageIndex = ref<number>(0)
-
-const selectPackage = (num: number) => {
-    PackageIndex.value = num
+const preOrder = () => {
+    // router.push({
+    //     name: "H5-orderDetail"
+    // })
+    showDialog({
+        title: '确认下单么?',
+        showCancelButton: true,
+    }).then(() => {
+        getPromotionCalculate()
+    }).catch(() => {
+        console.log('点击了取消')
+    })
 }
 
-const preOrder = () => {
-    router.push({
-        name: "H5-orderDetail"
-    })
+const assemble = () => {
+    const list = []
+    order.orderInfo.forEach(item => {
+        if (item.roundName !== '选择饮料') {
+            item.itemsList.forEach(itm => {
+                if (itm.isDefault === 'Y') {
+                    const obj = {
+                        quantity: itm.quantity,
+                        rowId: itm.rowId,
+                        skuId: itm.skuId,
+                        skuName: itm.skuName,
+                        unitPrice: itm.unitPrice,
+                        sides: []
+                    }
+                    itm.tasteList.forEach(e => {
+                        if (e.choosed) {
+                            obj.sides.push({
+                                quantity: e.quantity,
+                                skuId: e.skuId,
+                                skuName: e.skuName,
+                                unitPrice: e.unitPrice
+                            })
+                        }
+                    });
+                    list.push(obj);
+                }
+            })
+        }
+    });
+    return list
+}
+
+//优惠计算
+const getPromotionCalculate = async () => {
+    const params = {
+        setProducts: assemble(),
+        storeName: order.orderShop.storeName,
+        storeSn: order.orderShop.storeCode
+    }
+    const { code, data } = await promotionCalculateApi(params)
+    if (code === 0) {
+        getOrderCalculate()
+    }
+}
+
+//订单计算 
+const getOrderCalculate = async () => {
+    const params = {
+        setProducts: assemble(),
+        storeName: order.orderShop.storeName,
+        storeSn: order.orderShop.storeCode
+    }
+    const { code, data } = await orderCalculateApi(params)
+    if (code === 0) {
+        getOrderCreate()
+    }
+}
+
+//创建订单 
+const getOrderCreate = async () => {
+    const list = [];
+    order.orderInfo.forEach(item => {
+        item.itemsList.forEach(itm => {
+            if (itm.isDefault === 'Y') {
+                const obj = {
+                    qty: itm.quantity,
+                    skuCode: itm.skuId,
+                    skuName: itm.skuName,
+                    unitPrice: itm.unitPrice,
+                    productsItemsAtts: [],
+                    productsItemsItems: [],
+                    posCode: itm.posCode
+                };
+                if (item.roundName === '选择饮料' && item.drinkList, length > 0) {
+                    itm.drinkList.forEach(e => {
+                        if (e.choosed) {
+                            obj.productsItemsAtts.push({
+                                code: e.attributeId,
+                                id: e.id,
+                                name: e.skuName,
+                                posCode: e.posCode,
+                                pushPos: e.isPush
+                            })
+                        }
+                    });
+                }
+                if (item.roundName !== '选择饮料' && item.tasteList, length > 0) {
+                    itm.tasteList.forEach(e => {
+                        if (e.choosed) {
+                            obj.productsItemsAtts.push({
+                                posCode: e.posCode,
+                                qty: e.quantity,
+                                skuCode: e.skuId,
+                                skuName: e.skuName,
+                                unitPrice: e.unitPrice
+                            })
+                        }
+                    });
+                }
+                list.push(obj);
+            }
+        })
+    });
+    const params = {
+        productsItems: list,
+        salesScene: 0,
+        storeCode: order.orderShop.storeCode
+    }
+    const { code, data } = await orderCreateApi(params)
+    if (code === 0) {
+        console.log(data,"xxxxxxxxxxxxxxxxxx")
+    }
 }
 
 const selectSpecification = () => {
-    router.push({
-        name: 'H5-customized'
-    })
+    router.push({ name: 'H5-customized' })
 }
+
+const info = ref<{ imgUrl: string, name: string }>({ imgUrl: "", name: "" })
+
+const getGoodsInfo = async () => {
+    const { code, data } = await goodInfoApi()
+    if (code === 0) {
+        info.value = data
+    }
+}
+
+//
+onMounted(() => {
+    getGoodsInfo()
+})
 </script>
 
 <template>
@@ -47,13 +179,12 @@ const selectSpecification = () => {
         </div>
         <div class="ordering">
             <div class="foods">
-                <div v-for="(item, index) in 5" :key="item" @click="selectPackage(index)"
-                    :class="{ active: PackageIndex === index }">
+                <div class="active">
                     <div class="name">
-                        <van-image width="60" height="60" :src="HamBurger" />
-                        <p>炫辣鸡腿堡</p>
+                        <van-image width="60" height="60" :src="info.imgUrl" />
+                        <p>{{ info.name }}</p>
                     </div>
-                    <div class="specifications" v-show="PackageIndex === index" @click="selectSpecification">
+                    <div class="specifications" @click="selectSpecification">
                         选规格
                     </div>
                 </div>

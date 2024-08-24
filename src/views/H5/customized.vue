@@ -4,8 +4,14 @@ import mySwipe2 from '@/assets/H5/mySwipe2.png';
 import HamBurger from '@/assets/H5/HamBurger.png';
 import Drumsticks from '@/assets/H5/Drumsticks.png';
 import CocaCola from '@/assets/H5/CocaCola.png'
+import { goodDetailApi } from "@/api/storeApi"
+
+import { Store } from "@/store";
+
+const { order } = Store();
 
 const router = useRouter();
+
 const onClickLeft = () => history.back();
 
 const PackageForm = ref<{ principal: number; snack: number; drink: number }>({
@@ -14,23 +20,68 @@ const PackageForm = ref<{ principal: number; snack: number; drink: number }>({
     drink: 0
 })
 
-const selectPackage = (num: number, type: 'principal' | 'snack' | 'drink') => {
-    PackageForm.value[type] = num
+const selectPackage = (item: any, itm: any) => {
+    item.itemsList.forEach((e: any) => e.isDefault = 'N');
+    itm.isDefault = 'Y';
 }
 
-const preOrder = () => {
-    router.push({
-        name: "H5-selfOrder"
-    })
-}
 
 const actionSheetShow = ref<boolean>(false)
 
-const checked = ref<string>('')
+const flavor = ref<{ outNum: number, inNum: number }>({ outNum: 0, inNum: 0 })
+
+const tasteChoice = (index: number, idx: number) => {
+    actionSheetShow.value = true;
+    flavor.value.outNum = index;
+    flavor.value.inNum = idx;
+}
+
+const tastChange = (index: number) => {
+    if (goodInfo.value[flavor.value.outNum].roundName === '选择饮料') {
+        goodInfo.value[flavor.value.outNum].itemsList[flavor.value.inNum].drinkList.forEach(item => item.choosed = false)
+        goodInfo.value[flavor.value.outNum].itemsList[flavor.value.inNum].drinkList[index].choosed = true;
+    }
+}
 
 const determineTaste = () => {
-    actionSheetShow.value = false
+    actionSheetShow.value = false;
 }
+
+const goodInfo = ref<any>([])
+const getGoodDetail = async () => {
+    try {
+        const response = await goodDetailApi({ storeCode: order.orderShop.storeCode });
+        if (response.code === 0) {
+            const goodInfoList = response.data.map(item => {
+                const newObj = { ...item };
+                newObj.itemsList.forEach(itm => {
+                    if (item.roundName === '选择饮料' && itm.drinkList.length > 0) {
+                        itm.drinkList = itm.drinkList.map(it => ({ ...it, choosed: false }));
+                    }
+                    if (item.roundName === '选择主食' && itm.tasteList.length > 0) {
+                        itm.tasteList = itm.tasteList.map(it => ({ ...it, choosed: false }));
+                    }
+                });
+                return newObj;
+            });
+            goodInfo.value = goodInfoList;
+        }
+    } catch (error) {
+        showToast('获取商品详情时出现错误');
+    }
+}
+
+const preOrder = () => {
+    order.saveOrderInfo(goodInfo.value)
+    router.push({
+        name: "H5-selfOrder",
+    })
+}
+
+
+onMounted(() => {
+    getGoodDetail()
+})
 
 </script>
 
@@ -46,41 +97,17 @@ const determineTaste = () => {
             </van-swipe-item>
         </van-swipe>
         <div class="staple">
-            <div class="bill">
-                <h4>选择主食</h4>
+            <div class="bill" v-for="(item, index) in goodInfo" :key="item.round">
+                <h4>{{ item.roundName }} <span v-show="item.optionGroupName">({{ item.optionGroupName }})</span></h4>
                 <div>
-                    <div v-for="(item, index) in 3" :key="item" @click="selectPackage(index, 'principal')"
-                        :class="{ active: PackageForm.principal === index }">
+                    <div v-for="(itm, idx) in item.itemsList" :key="itm.rowId"
+                        :class="{ active: itm.isDefault === 'Y' }" @click="selectPackage(item, itm)">
                         <div class="name">
-                            <van-image width="60" height="60" :src="HamBurger" />
-                            <p>炫辣鸡腿堡</p>
+                            <van-image width="60" height="60" :src="itm.mainImageUrl" />
+                            <p>{{ itm.skuName }}</p>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="bill">
-                <h4>选择小食</h4>
-                <div>
-                    <div v-for="(item, index) in 3" :key="item" @click="selectPackage(index, 'snack')"
-                        :class="{ active: PackageForm.snack === index }">
-                        <div class="name">
-                            <van-image width="60" height="60" :src="Drumsticks" />
-                            <p>炫辣鸡腿堡</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="bill">
-                <h4>选择饮料</h4>
-                <div>
-                    <div v-for="(item, index) in 3" :key="item" @click="selectPackage(index, 'drink')"
-                        :class="{ active: PackageForm.drink === index }">
-                        <div class="name">
-                            <van-image width="60" height="60" :src="CocaCola" />
-                            <p>可口可乐</p>
-                        </div>
-                        <div class="specifications" v-show="PackageForm.drink === index"
-                            @click="actionSheetShow = true">
+                        <div class="specifications" @click="tasteChoice(index, idx)"
+                            v-show="(itm.tasteList.length > 0 || itm.drinkList.length > 0) && itm.isDefault === 'Y'">
                             口味选择
                         </div>
                     </div>
@@ -91,11 +118,15 @@ const determineTaste = () => {
 
         <van-popup v-model:show="actionSheetShow" round closeable position="bottom" :style="{ height: '30%' }">
             <div class="popup-content">
-                <h4>请选择口味</h4>
-                <van-radio-group v-model="checked" direction="horizontal">
-                    <van-radio name="1">加冰</van-radio>
-                    <van-radio name="2">不加冰 2</van-radio>
-                </van-radio-group>
+                <h4>{{ goodInfo[flavor.outNum].itemsList[flavor.inNum].skuName }}</h4>
+                <div v-show="goodInfo[flavor.outNum].roundName === '选择饮料'">
+                    <van-checkbox v-for="(e, index) in goodInfo[flavor.outNum].itemsList[flavor.inNum].drinkList"
+                        :key="e.id" v-model="e.choosed" @click="tastChange(index)">{{ e.skuName }}</van-checkbox>
+                </div>
+                <div v-show="goodInfo[flavor.outNum].roundName === '选择主食'">
+                    <van-checkbox v-for="(e, index) in goodInfo[flavor.outNum].itemsList[flavor.inNum].tasteList"
+                        :key="e.id" v-model="e.choosed" @click="tastChange(index)">{{ e.skuName }}</van-checkbox>
+                </div>
                 <van-button type="primary" class="popup-content-btn" round @click="determineTaste">确定口味</van-button>
             </div>
 
@@ -127,6 +158,11 @@ const determineTaste = () => {
             h4 {
                 padding: .5rem 0px;
                 margin: 0px 0px;
+
+                span {
+                    font-size: 1rem;
+                    color: grey;
+                }
             }
 
             &>div {
@@ -149,7 +185,16 @@ const determineTaste = () => {
                             font-size: .8rem;
                             margin: 0px;
                             padding: 0px;
+                            overflow-x: scroll;
+                            text-align: center;
+                            width: 100%;
+                            white-space: nowrap;
+
+                            &::-webkit-scrollbar {
+                                display: none;
+                            }
                         }
+
                     }
 
                     .specifications {
