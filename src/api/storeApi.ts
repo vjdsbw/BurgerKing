@@ -41,3 +41,9 @@ export const orderCalculateApi = (params: any) => http.post("/api/order/orderCal
 
 // 创建订单
 export const orderCreateApi = (params: any) => http.post("/api/order/orderCreate", params);
+
+//获取salesSceneexport 
+export const salesSceneApi = (params: { storeCode: string }) => http.get("/api/store/sales_scene", params);
+
+// 订单详情
+export const orderDetailApi = (params: { storeCode: string }) => http.get("/api/order/orderInfo", params);

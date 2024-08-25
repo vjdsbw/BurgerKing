@@ -38,7 +38,7 @@ const tasteChoice = (index: number, idx: number) => {
 
 const tastChange = (index: number) => {
     if (goodInfo.value[flavor.value.outNum].roundName === '选择饮料') {
-        goodInfo.value[flavor.value.outNum].itemsList[flavor.value.inNum].drinkList.forEach(item => item.choosed = false)
+        goodInfo.value[flavor.value.outNum].itemsList[flavor.value.inNum].drinkList.forEach((item:any) => item.choosed = false)
         goodInfo.value[flavor.value.outNum].itemsList[flavor.value.inNum].drinkList[index].choosed = true;
     }
 }
@@ -49,25 +49,24 @@ const determineTaste = () => {
 
 const goodInfo = ref<any>([])
 const getGoodDetail = async () => {
-    try {
-        const response = await goodDetailApi({ storeCode: order.orderShop.storeCode });
-        if (response.code === 0) {
-            const goodInfoList = response.data.map(item => {
-                const newObj = { ...item };
-                newObj.itemsList.forEach(itm => {
-                    if (item.roundName === '选择饮料' && itm.drinkList.length > 0) {
-                        itm.drinkList = itm.drinkList.map(it => ({ ...it, choosed: false }));
-                    }
-                    if (item.roundName === '选择主食' && itm.tasteList.length > 0) {
-                        itm.tasteList = itm.tasteList.map(it => ({ ...it, choosed: false }));
-                    }
-                });
-                return newObj;
+
+    const { code, data, msg } = await goodDetailApi({ storeCode: order.orderShop.storeCode });
+    if (code === 0) {
+        const goodInfoList = data.map((item:any) => {
+            const newObj = { ...item };
+            newObj.itemsList.forEach((itm:any) => {
+                if (item.roundName === '选择饮料' && itm.drinkList.length > 0) {
+                    itm.drinkList = itm.drinkList.map((it:any) => ({ ...it, choosed: false }));
+                }
+                if (item.roundName === '选择主食' && itm.tasteList.length > 0) {
+                    itm.tasteList = itm.tasteList.map((it:any) => ({ ...it, choosed: false }));
+                }
             });
-            goodInfo.value = goodInfoList;
-        }
-    } catch (error) {
-        showToast('获取商品详情时出现错误');
+            return newObj;
+        });
+        goodInfo.value = goodInfoList;
+    } else {
+        showToast(msg);
     }
 }
 

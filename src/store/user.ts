@@ -4,6 +4,8 @@ import piniaPersistConfig from './piniaPersist';
 interface UserState {
     token: string;
     code: string;
+    userName: string;
+
 }
 
 export const useUserStore = defineStore({
@@ -11,10 +13,14 @@ export const useUserStore = defineStore({
     state: (): UserState => {
         return {
             token: "",
-            code: ""
+            code: "",
+            userName: ""
         };
     },
     actions: {
+        setUserName(name: UserState['userName']) {
+            this.userName = name;
+        },
         setToken(token: UserState['token']) {
             this.token = token;
         },

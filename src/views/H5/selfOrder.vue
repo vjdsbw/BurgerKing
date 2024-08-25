@@ -2,7 +2,7 @@
 import HamBurger from '@/assets/H5/HamBurger.png'
 import ShopBag from "@/assets/H5/ShopBag.png"
 import StoreDining from "@/assets/H5/StoreDining.png"
-import { goodInfoApi, promotionCalculateApi, orderCalculateApi, orderCreateApi } from "@/api/storeApi"
+import { goodInfoApi, promotionCalculateApi, orderCalculateApi, orderCreateApi, salesSceneApi } from "@/api/storeApi"
 import { Store } from "@/store";
 
 const { user, order } = Store();
@@ -11,11 +11,7 @@ const router = useRouter()
 
 const onClickLeft = () => router.push(`/h5?code=${user.code}`)
 
-const orderingMethod = ref<'Dine' | 'besides'>('Dine')
-
-const chooseMethod = (type: 'Dine' | 'besides') => {
-    orderingMethod.value = type
-}
+const pickupType = ref<number>(1)
 
 const preOrder = () => {
     // router.push({
@@ -32,12 +28,12 @@ const preOrder = () => {
 }
 
 const assemble = () => {
-    const list = []
-    order.orderInfo.forEach(item => {
+    const list: any = []
+    order.orderInfo.forEach((item: any) => {
         if (item.roundName !== '选择饮料') {
-            item.itemsList.forEach(itm => {
+            item.itemsList.forEach((itm: any) => {
                 if (itm.isDefault === 'Y') {
-                    const obj = {
+                    const obj: any = {
                         quantity: itm.quantity,
                         rowId: itm.rowId,
                         skuId: itm.skuId,
@@ -45,7 +41,7 @@ const assemble = () => {
                         unitPrice: itm.unitPrice,
                         sides: []
                     }
-                    itm.tasteList.forEach(e => {
+                    itm.tasteList.forEach((e: any) => {
                         if (e.choosed) {
                             obj.sides.push({
                                 quantity: e.quantity,
@@ -91,11 +87,12 @@ const getOrderCalculate = async () => {
 
 //创建订单 
 const getOrderCreate = async () => {
-    const list = [];
-    order.orderInfo.forEach(item => {
-        item.itemsList.forEach(itm => {
+    const res = await salesSceneApi({ storeCode: order.orderShop.storeCode })
+    const list: any = []
+    order.orderInfo.forEach((item: any) => {
+        item.itemsList.forEach((itm: any) => {
             if (itm.isDefault === 'Y') {
-                const obj = {
+                const obj: any = {
                     qty: itm.quantity,
                     skuCode: itm.skuId,
                     skuName: itm.skuName,
@@ -105,7 +102,7 @@ const getOrderCreate = async () => {
                     posCode: itm.posCode
                 };
                 if (item.roundName === '选择饮料' && item.drinkList, length > 0) {
-                    itm.drinkList.forEach(e => {
+                    itm.drinkList.forEach((e: any) => {
                         if (e.choosed) {
                             obj.productsItemsAtts.push({
                                 code: e.attributeId,
@@ -118,7 +115,7 @@ const getOrderCreate = async () => {
                     });
                 }
                 if (item.roundName !== '选择饮料' && item.tasteList, length > 0) {
-                    itm.tasteList.forEach(e => {
+                    itm.tasteList.forEach((e: any) => {
                         if (e.choosed) {
                             obj.productsItemsAtts.push({
                                 posCode: e.posCode,
@@ -136,12 +133,14 @@ const getOrderCreate = async () => {
     });
     const params = {
         productsItems: list,
-        salesScene: 0,
-        storeCode: order.orderShop.storeCode
+        salesScene: res.data,
+        storeCode: order.orderShop.storeCode,
+        pickupType: pickupType.value
     }
     const { code, data } = await orderCreateApi(params)
+    router.push({name:'H5-orderDetail'})
     if (code === 0) {
-        console.log(data,"xxxxxxxxxxxxxxxxxx")
+        router.push({name:'H5-orderDetail'})
     }
 }
 
@@ -168,11 +167,11 @@ onMounted(() => {
     <div class="self-order-box">
         <van-nav-bar title="自选套餐" left-arrow @click-left="onClickLeft"></van-nav-bar>
         <div class="ordering-way">
-            <div :class="{ active: orderingMethod === 'Dine' }" @click="chooseMethod('Dine')">
+            <div :class="{ active: pickupType === 1 }" @click="pickupType = 1">
                 <van-icon :name="StoreDining" size="1.5rem" />
                 <p>堂食用餐</p>
             </div>
-            <div :class="{ active: orderingMethod === 'besides' }" @click="chooseMethod('besides')">
+            <div :class="{ active: pickupType === 2 }" @click="pickupType = 2">
                 <van-icon :name="ShopBag" size="1.5rem" />
                 <p>打包自提</p>
             </div>

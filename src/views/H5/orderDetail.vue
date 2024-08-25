@@ -3,18 +3,41 @@ import Booking from '@/assets/H5/booking.png'
 import Marking from '@/assets/H5/marking.png'
 import Pickup from '@/assets/H5/pickup.png'
 import mySwipe2 from '@/assets/H5/mySwipe2.png';
-const router = useRouter()
+import { Store } from "@/store";
+
+import { orderDetailApi } from '@/api/storeApi';
 
 const onClickLeft = () => history.back();
+
+const { order } = Store();
+
+const router = useRouter()
+
+const detailInfo = ref<any>({})
+const getInfo = async () => {
+
+    // const { code, data, msg } = await orderDetailApi({ storeCode: order.orderShop.storeCode })
+    const { code, data, msg } = await orderDetailApi({ storeCode: '29654-1' })
+    if (code === 0) {
+        detailInfo.value = data;
+        detailInfo.value.diningCabinetNumber = JSON.parse(data.diningCabinetNumber)[0]
+    } else {
+        showToast(msg)
+    }
+}
+
+onMounted(() => {
+    getInfo()
+})
 
 </script>
 
 <template>
     <div class="order-detail-box">
         <van-nav-bar title="订单详情" left-arrow @click-left="onClickLeft"></van-nav-bar>
-        <div class="order-status">
-            <h4>取餐码</h4>
-            <div class="code">9147</div>
+        <div class="order-status" v-if="detailInfo.diningCabinetNumber && detailInfo.diningCabinetPickupCode">
+            <h5>取餐柜:{{ detailInfo.diningCabinetNumber }}</h5>
+            <div class="code">取餐柜取餐码:{{ detailInfo.diningCabinetPickupCode }}</div>
             <div class="status">
                 <div>
                     <van-icon :name="Booking" size="1.5rem" />
@@ -29,29 +52,55 @@ const onClickLeft = () => history.back();
                     请取餐
                 </div>
             </div>
-            <div class="tip">请至门店柜台凭取餐号取餐请留意大屏叫号</div>
+            <div class="tip"> 请至门店取餐柜凭二维码取餐</div>
+            <div class="tip"> 冰激凌等冷饮，请凭取餐柜内餐牌至柜台领取</div>
+        </div>
+        <div class="order-status" v-else>
+            <h5>取餐码</h5>
+            <div class="code">{{ detailInfo.pickupNumber }}</div>
+            <div class="status">
+                <div>
+                    <van-icon :name="Booking" size="1.5rem" />
+                    已下单
+                </div>
+                <div>
+                    <van-icon :name="Marking" size="1.5rem" />
+                    制作中
+                </div>
+                <div>
+                    <van-icon :name="Pickup" size="1.5rem" />
+                    请取餐
+                </div>
+            </div>
+            <div class="tip"> 请至门店柜台凭取餐号取餐</div>
+            <div class="tip"> 请留意大屏叫号</div>
         </div>
         <div class="order-content">
-            <div class="title">无锡万达</div>
-            <van-card v-for="item in 3" :key="item" title="炫辣鸡腿堡" :thumb="mySwipe2">
+            <div class="title">{{ detailInfo.storeName }}</div>
+            <van-card :title="detailInfo.couponName" :thumb="mySwipe2">
                 <template #desc>
                     <div class="desc">
-                        <div>双层原味脆鸡堡 x1</div>
-                        <div>波纹薯条(小)配番茄酱 x1</div>
-                        <div>可口可乐(/336ml) x1</div>
+                        <div>{{ detailInfo.specs }}</div>
                     </div>
                 </template>
             </van-card>
+            <van-cell-group inset>
+                <van-cell title="商品小计" :value="detailInfo.orderAmount" />
+                <van-cell v-for="(item, index) in detailInfo.discounts" :key="index" :title="item.discountName"
+                    :value="item.totalDiscountAmount" />
+                <van-cell title="合计" :value="detailInfo.actualPayAmount"></van-cell>
+            </van-cell-group>
         </div>
         <van-cell-group inset>
-            <van-cell title="取餐号" value="9147" />
+            <van-cell title="取餐号" :value="detailInfo.pickupNumber" />
             <van-cell title="手机尾号" value="0740" />
-            <van-cell title="订单号" value="2258302584437507275" />
-            <van-cell title="就餐方式" value="外带" />
-            <van-cell title="下单时间" value="2024-08-15 16:00:08" />
+            <van-cell title="订单号" :value="detailInfo.orderNo" />
+            <van-cell title="就餐方式" :value="detailInfo.pickupType" />
+            <van-cell title="下单时间" :value="detailInfo.orderTime" />
+            <van-cell title="支付时间" :value="detailInfo.payTime" />
             <van-cell title="支付方式" value="线上支付" />
             <van-cell title="餐具" value="不需要" />
-            <van-cell title="地址" value="河南省许昌市魏都区河南省许昌市莲城大道与智慧大道交叉口西南" />
+            <van-cell title="地址" :value="detailInfo.storeAddress" />
         </van-cell-group>
 
     </div>
@@ -76,12 +125,12 @@ const onClickLeft = () => history.back();
         border-radius: 10px;
         text-align: center;
 
-        h4 {
+        h5 {
             margin: 0px 0px;
         }
 
         .code {
-            font-size: 2rem;
+            font-size: 1.2rem;
             color: rgb(54, 154, 247);
             font-weight: 600;
         }

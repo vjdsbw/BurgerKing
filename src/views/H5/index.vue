@@ -9,7 +9,7 @@ const router = useRouter()
 
 const searchValue = ref<string>('');
 
-const orderRestaurant = (shop) => {
+const orderRestaurant = (shop:any) => {
     order.saveOrderShop(shop);
     if (shop.status === '营业中') {
         showDialog({

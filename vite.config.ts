@@ -50,7 +50,7 @@ export default defineConfig({
     Layouts({
       layoutsDirs: 'src/layouts', // 布局文件存放目录
       pagesDirs: 'src/views', // 页面文件存放目录
-      defaultLayout: 'index' // 默认布局，对应 src/layout/Index.vue
+      defaultLayout: 'Index' // 默认布局，对应 src/layout/Index.vue
     }),
     VueSetupExtend()
   ],
