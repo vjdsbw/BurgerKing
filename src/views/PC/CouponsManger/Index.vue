@@ -191,9 +191,8 @@ const columns: DataTableColumns<Row> = [
                     <n-form ref="formRef" :model="linkForm" :rules="rules" label-placement="left" label-width="auto"
                         require-mark-placement="right-hanging">
                         <n-form-item label="选择账号" path="userUidId">
-                            <n-select v-model:value="linkForm.userUidId" placeholder="Select" :options="generalOptions"
-                                placement="请输入手机号" filterable remote clearable :loading="selectLoading"
-                                @search="handleSearch" />
+                            <n-select v-model:value="linkForm.userUidId" placeholder="请输入手机号" :options="generalOptions"
+                                filterable remote clearable :loading="selectLoading" @search="handleSearch" />
                         </n-form-item>
                         <n-form-item label="输入数量" path="num">
                             <n-input-number clearable v-model:value="linkForm.num" :min="1" />

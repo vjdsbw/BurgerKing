@@ -9,10 +9,10 @@ export const listByPhoneApi = (params: { phone: string }) => http.get("/console/
 // 批量生成短码
 export const batchGenApi = (params: {
     couponCenterId: number,
-    couponId: number,
+    couponId: string,
     currentPrice: string,
     num: number,
-    sellType: string,
+    sellType: number,
     userUidId: string
 }) => http.post("/console/short_code/batchGen", params);
 
