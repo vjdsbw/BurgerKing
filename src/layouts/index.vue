@@ -1,13 +1,107 @@
-<script setup lang="ts" name="layout">
+<script setup lang="ts" name="Layout">
+import avatar from "@/assets/PC/avatar.png";
+import { logoutApi } from "@/api/login";
+import { Home, LogoLinkedin, NewspaperOutline, PeopleCircle } from '@vicons/ionicons5'
+import { Store } from "@/store";
+import type { MenuOption } from 'naive-ui'
+const { user } = Store();
+
+const router = useRouter()
+
+const handleSelect = async () => {
+    const { code, data } = await logoutApi()
+    if (code === 0) {
+        user.setToken("")
+        user.setUserName("")
+        router.push({ name: "PC-Login" })
+    }
+}
+const renderIcon = (icon: Component) => {
+    return () => h(NIcon, null, { default: () => h(icon) })
+}
+const options = [
+    {
+        label: '退出登录',
+        key: 'out',
+    },
+]
+
+const collapsed = ref<boolean>(false)
+
+const menuOptions: MenuOption[] = [
+    {
+        label: '首页',
+        key: 'PC-Home',
+        icon: renderIcon(Home)
+    },
+    // {
+    //     label: '账号管理',
+    //     key: 'PC-PeopleCircle',
+    //     icon: renderIcon(PeopleCircle)
+    // },
+    {
+        label: '卡卷管理',
+        key: 'PC-CouponsManger-Index',
+        icon: renderIcon(NewspaperOutline)
+    },
+    // {
+    //     label: '链接管理',
+    //     key: 'PC-LogoLinkedin',
+    //     icon: renderIcon(LogoLinkedin)
+    // },
+];
+
+const changeMenu = (key: string, _item: MenuOption) => router.push({ name: key })
 
 </script>
 
 <template>
-    <div>
-
-        xxxxxxxxxxxxxxxx
-        <router-view></router-view>
+    <div class="layout-box">
+        <n-layout position="absolute">
+            <n-layout-header style="height: 64px; padding:20px 30px;background-color: #2080f0" bordered>
+                <div class="header-contant">
+                    <div> 欢迎使用汉堡King管理系统</div>
+                    <div class="right">
+                        <div>管理员</div>
+                        <n-dropdown trigger="hover" :options="options" @select="handleSelect">
+                            <n-avatar round size="small" :src="avatar" />
+                        </n-dropdown>
+                    </div>
+                </div>
+            </n-layout-header>
+            <n-layout has-sider position="absolute" style="top: 64px; bottom: 64px;">
+                <n-layout-sider bordered collapse-mode="width" :collapsed-width="64" :width="240" :collapsed="collapsed"
+                    show-trigger @collapse="collapsed = true" @expand="collapsed = false">
+                    <n-menu :collapsed="collapsed" :collapsed-width="64" :collapsed-icon-size="22"
+                        :options="menuOptions" @update:value="changeMenu" />
+                </n-layout-sider>
+                <n-layout content-style="padding: 24px;" style="background-color: #ededed">
+                    <router-view></router-view>
+                </n-layout>
+            </n-layout>
+            <n-layout-footer bordered position="absolute" style="height: 64px; padding: 20px">
+            </n-layout-footer>
+        </n-layout>
     </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.layout-box {
+    .header-contant {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+
+        .right {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+
+            .n-avatar {
+                margin-left: 10px;
+            }
+        }
+    }
+}
+</style>

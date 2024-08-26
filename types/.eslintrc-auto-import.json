@@ -83,6 +83,7 @@
     "showDialog": true,
     "showToast": true,
     "showConfirmDialog": true,
-    "NButton": true
+    "NButton": true,
+    "NIcon": true
   }
 }

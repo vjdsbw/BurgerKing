@@ -23,7 +23,7 @@ const preOrder = () => {
     }).then(() => {
         getPromotionCalculate()
     }).catch(() => {
-        console.log('点击了取消')
+        console.log('点击了取消')  
     })
 }
 

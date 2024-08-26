@@ -8,8 +8,8 @@ const { user } = Store();
 const router = useRouter()
 
 const formRef = ref<FormInst | null>(null)
-
-const loginForm = ref<{ accountId: string; enPwd: string }>({ accountId: "18941925188", enPwd: "qwertyuiop" })
+//18941925188  qwertyuiop
+const loginForm = ref<{ accountId: string; enPwd: string }>({ accountId: "", enPwd: "" })
 
 const rules: FormRules = {
     userName: [{ required: true, message: '请输入账号', trigger: ['input', 'blur'] }],

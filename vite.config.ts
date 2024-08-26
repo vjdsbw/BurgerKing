@@ -65,7 +65,7 @@ export default defineConfig({
   server: {
     hmr: true,			// ← ← ← ← ← ←
     host: '0.0.0.0',	// ← 新增内容 ←
-    port:5173,
+    port:5174,
     proxy: {
       '^/api': {
         target: 'http://122.51.67.196:12001/hanbao',

@@ -22,6 +22,7 @@ export const useUserStore = defineStore({
             this.userName = name;
         },
         setToken(token: UserState['token']) {
+            console.log(token,"xxxxxxxxxxxxxxxxxxxxx")
             this.token = token;
         },
         setCode(Code: UserState['token']) {

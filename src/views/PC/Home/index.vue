@@ -3,19 +3,20 @@
 </script>
 
 <template>
-    <div class="home-box">
-        
-    </div>
+    <n-card class="home-box" :bordered="false">
+
+    </n-card>
 </template>
 
 <route lang="json">{
     "meta": {
-        "layout": false
+        "layout": "Index"
     }
 }</route>
 
 <style scoped lang="scss">
 .home-box {
-    height: 100vh;
+    height: 100%;
+    background-color: white;
 }
 </style>
