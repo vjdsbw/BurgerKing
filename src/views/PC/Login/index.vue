@@ -33,7 +33,7 @@ const submitLogin = async () => {
 
         </div>
         <div class="login-form">
-            <h2>汉堡王管理</h2>
+            <h2>管理后台</h2>
             <n-form ref="formRef" :model="loginForm" :rules="rules" label-placement="left">
                 <n-form-item path="accountId">
                     <n-input v-model:value="loginForm.accountId" clearable @keydown.enter.prevent placeholder="请输入账号" />

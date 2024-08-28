@@ -84,6 +84,7 @@
     "showToast": true,
     "showConfirmDialog": true,
     "NButton": true,
-    "NIcon": true
+    "NIcon": true,
+    "NPopconfirm": true
   }
 }

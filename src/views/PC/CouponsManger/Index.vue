@@ -38,7 +38,7 @@ const rules: FormRules = {
     userUidId: [{ required: true, message: '请输入/选择手机号', trigger: ['input', 'blur'] }],
 }
 
-const linkList = ref<string[]>(["https://122.51.67.196:5174/h5?code=VZE1ABR37BU8", "https://122.51.67.196:5174/h5?code=VZE1ABR37BU8", "https://122.51.67.196:5174/h5?code=VZE1ABR37BU8"])
+const linkList = ref<string[]>([''])
 const createLink = async () => {
     const params = {
         couponCenterId: rowInfo.value.couponCenterId,
@@ -61,6 +61,7 @@ const copyLink = () => {
     const copyText = linkList.value.join('\n')
     try {
         if (navigator.clipboard && window.isSecureContext) {
+            message.success('复制链接成功')
             return navigator.clipboard.writeText(copyText);
         } else {
             // 创建 textarea
@@ -70,11 +71,12 @@ const copyLink = () => {
             document.body.appendChild(textarea);
             textarea.focus();
             textarea.select();
-            document.execCommand('copy') ? showToast('复制链接成功') : showToast('复制链接失败');
+            document.execCommand('copy') ? message.success('复制链接成功') : message.error('复制链接失败');
             textarea.remove();
+
         }
     } catch (err) {
-        showToast('复制链接失败')
+        message.error('复制链接失败')
     }
 }
 
@@ -155,6 +157,7 @@ const columns: DataTableColumns<Row> = [
                         style: { width: '150px' },
                         onClick: () => {
                             rowInfo.value = row;
+                            linkList.value.length = 0;
                             linkModal.value = true;
                         }
                     },

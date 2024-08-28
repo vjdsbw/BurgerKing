@@ -34,11 +34,11 @@ const menuOptions: MenuOption[] = [
         key: 'PC-Home',
         icon: renderIcon(Home)
     },
-    // {
-    //     label: '账号管理',
-    //     key: 'PC-PeopleCircle',
-    //     icon: renderIcon(PeopleCircle)
-    // },
+    {
+        label: '账号管理',
+        key: 'PC-AccountManage',
+        icon: renderIcon(PeopleCircle)
+    },
     {
         label: '卡卷管理',
         key: 'PC-CouponsManger-Index',

@@ -1,0 +1,67 @@
+{
+    "storeCode": "32250",
+    "salesScene": 1,
+    "pickupType": 1,
+    "skuType": 3,
+    "productsItems": [
+        {
+            "skuCode": "110003",
+            "skuName": "小皇堡",
+            "posCode": "110003",
+            "unitPrice": "0",
+            "qty": 1,
+            "groupId": 1444,
+            "productsItemsItems": [
+                {
+                    "skuCode": "8000055",
+                    "skuName": "不要洋葱",
+                    "posCode": "800010"
+                },
+                {
+                    "skuCode": "8000057",
+                    "skuName": "不要西红柿",
+                    "posCode": "800013"
+                }
+            ],
+            "productsItemsAtts": []
+        },
+        {
+            "skuCode": "131203",
+            "skuName": "波纹薯条(中)配番茄酱\n\n",
+            "posCode": "131203",
+            "unitPrice": "0",
+            "qty": 1,
+            "groupId": 1444,
+            "productsItemsItems": [],
+            "productsItemsAtts": []
+        },
+        {
+            "skuCode": "131004",
+            "skuName": "王道嫩香鸡块(5块)",
+            "posCode": "131004",
+            "unitPrice": "0",
+            "qty": 1,
+            "groupId": 1444,
+            "productsItemsItems": [],
+            "productsItemsAtts": []
+        },
+        {
+            "skuCode": "123005",
+            "skuName": "雪碧(中/448ml)",
+            "posCode": "123005",
+            "unitPrice": "0",
+            "qty": 1,
+            "groupId": 1444,
+            "productsItemsItems": [],
+            "productsItemsAtts": [
+                {
+                    "id": 1,
+                    "name": "加冰",
+                    "code": 1,
+                    "posCode": "800015",
+                    "pushPos": 0
+                }
+            ]
+        }
+    ]
+}

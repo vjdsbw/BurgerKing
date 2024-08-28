@@ -23,7 +23,7 @@ const preOrder = () => {
     }).then(() => {
         getPromotionCalculate()
     }).catch(() => {
-        console.log('点击了取消')  
+        console.log('点击了取消')
     })
 }
 
@@ -61,15 +61,17 @@ const assemble = () => {
 
 //优惠计算
 const getPromotionCalculate = async () => {
-    const params = {
-        setProducts: assemble(),
-        storeName: order.orderShop.storeName,
-        storeSn: order.orderShop.storeCode
-    }
-    const { code, data } = await promotionCalculateApi(params)
-    if (code === 0) {
-        getOrderCalculate()
-    }
+    // const params = {
+    //     setProducts: assemble(),
+    //     storeName: order.orderShop.storeName,
+    //     storeSn: order.orderShop.storeCode
+    // }
+    // const { code, data } = await promotionCalculateApi(params)
+    // if (code === 0) {
+    //     getOrderCalculate()
+    // }
+
+    getOrderCreate()
 }
 
 //订单计算 
@@ -83,6 +85,7 @@ const getOrderCalculate = async () => {
     if (code === 0) {
         getOrderCreate()
     }
+    
 }
 
 //创建订单 
@@ -97,32 +100,42 @@ const getOrderCreate = async () => {
                     skuCode: itm.skuId,
                     skuName: itm.skuName,
                     unitPrice: itm.unitPrice,
+                    groupId: item.id,
                     productsItemsAtts: [],
                     productsItemsItems: [],
-                    posCode: itm.posCode
+                    posCode: itm.postCode
                 };
-                if (item.roundName === '选择饮料' && item.drinkList, length > 0) {
+                if (item.roundName === '选择饮料' && itm.drinkList.length > 0) {
                     itm.drinkList.forEach((e: any) => {
                         if (e.choosed) {
                             obj.productsItemsAtts.push({
                                 code: e.attributeId,
                                 id: e.id,
                                 name: e.skuName,
-                                posCode: e.posCode,
+                                posCode: e.postCode,
                                 pushPos: e.isPush
                             })
                         }
                     });
+                    if (obj.productsItemsAtts.length === 0) {
+                        obj.productsItemsAtts.push({
+                            code: itm.drinkList[0].attributeId,
+                            id: itm.drinkList[0].id,
+                            name: itm.drinkList[0].skuName,
+                            posCode: itm.drinkList[0].postCode,
+                            pushPos: itm.drinkList[0].isPush
+                        })
+                    }
                 }
-                if (item.roundName !== '选择饮料' && item.tasteList, length > 0) {
+                if (item.roundName !== '选择饮料' && itm.tasteList.length > 0) {
                     itm.tasteList.forEach((e: any) => {
                         if (e.choosed) {
-                            obj.productsItemsAtts.push({
+                            obj.productsItemsItems.push({
                                 posCode: e.posCode,
-                                qty: e.quantity,
+                                // qty: e.quantity,
                                 skuCode: e.skuId,
                                 skuName: e.skuName,
-                                unitPrice: e.unitPrice
+                                // unitPrice: e.unitPrice
                             })
                         }
                     });
@@ -135,7 +148,8 @@ const getOrderCreate = async () => {
         productsItems: list,
         salesScene: res.data,
         storeCode: order.orderShop.storeCode,
-        pickupType: pickupType.value
+        pickupType: pickupType.value,
+        skuType: order.orderInfo[0].skuType
     }
     const { code, data } = await orderCreateApi(params)
     router.push({name:'H5-orderDetail'})
