@@ -41,14 +41,14 @@ const menuOptions: MenuOption[] = [
     },
     {
         label: '卡劵管理',
-        key: 'PC-CouponsManger-Index',
+        key: 'PC-CouponsManger',
         icon: renderIcon(NewspaperOutline)
     },
-    // {
-    //     label: '链接管理',
-    //     key: 'PC-LogoLinkedin',
-    //     icon: renderIcon(LogoLinkedin)
-    // },
+    {
+        label: '链接管理',
+        key: 'PC-LinkManger',
+        icon: renderIcon(LogoLinkedin)
+    },
 ];
 
 const changeMenu = (key: string, _item: MenuOption) => router.push({ name: key })

@@ -4,7 +4,7 @@ import http from "@/utils/http";
 export const couponListApi = () => http.get("/console/coupon/list");
 
 // 根据手机号模糊搜索绑定账号列表
-export const listByPhoneApi = (params: { phone: string }) => http.get("/console/user_uid/list_by_phone", params);
+export const listByPhoneApi = (params: { phone?: string }) => http.get("/console/user_uid/list_by_phone", params);
 
 // 批量生成短码
 export const batchGenApi = (params: {
@@ -33,3 +33,31 @@ export const reloginApi = (params: { userUidId: number, verifyCode: string }) =>
 
 //删除绑定的手机号
 export const deleteApi = (params: { userUidId: number }) => http.post("/console/user_uid/delete", params);
+
+//分页查询链接
+export const shortCodeApi = (params: {
+    couponName: string;
+    couponPrice: string;
+    pageNo: number;
+    pageSize: number;
+    phone: string;
+    status: string;
+    url: string;
+}) => http.post("/console/short_code/page_list", params);
+
+//重置链接
+export const replaceCodeApi = (params: { shortCode: string }) => http.post("/console/short_code/replace", params);
+
+//删除链接
+export const deleteCodeApi = (params: { shortCode: string }) => http.post("/console/short_code/delete", params);
+
+
+//导出短链
+export const downloadApi = (params: {
+    status: string,
+    userUidId: number,
+    createEndDate?: string,
+    createStartDate?: string,
+    usedEndDate?: string,
+    usedStartDate?: string,
+}) => http.post("/console/short_code/download", params, { responseType: 'blob' });

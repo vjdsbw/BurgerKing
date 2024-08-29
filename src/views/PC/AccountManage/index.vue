@@ -30,6 +30,7 @@ const pagenum = ref<number>(1)
 const totalNum = ref<number>(0)
 const pageCount = ref<number>(0)
 const balance = ref<number>(0);
+const tableDataLoading = ref<boolean>(false)
 
 const bindModal = ref<boolean>(false)
 const bindForm = ref<{ bindPhone: string; bindCaptcha: string }>({ bindPhone: '', bindCaptcha: '' })
@@ -87,6 +88,7 @@ const reLogin = async () => {
 }
 
 const getUserList = async () => {
+    tableDataLoading.value = true
     const params = {
         pageNo: pagenum.value,
         pageSize: pagesize.value,
@@ -96,6 +98,7 @@ const getUserList = async () => {
     tableData.value = res.dataList;
     totalNum.value = res.totalCount;
     pageCount.value = res.pageCount
+    tableDataLoading.value = false
 }
 
 const pageSizeChange = (pageSize: number) => {
@@ -249,7 +252,7 @@ const columns: DataTableColumns<Row> = [
             </n-form>
         </n-card>
         <n-card :bordered="false">
-            <n-data-table :columns="columns" :data="tableData" :single-line="false" />
+            <n-data-table :columns="columns" :data="tableData" :single-line="false" :loading="tableDataLoading" />
             <n-pagination v-model:page="pagenum" v-model:page-size="pagesize" :page-count="pageCount" size="medium"
                 :page-sizes="[10, 20, 50, 100]" show-size-picker @update:page-size="pageSizeChange"
                 @update:page="pageChange" style="justify-content: flex-end;margin-top: 10px;" />

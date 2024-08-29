@@ -85,6 +85,8 @@
     "showConfirmDialog": true,
     "NButton": true,
     "NIcon": true,
-    "NPopconfirm": true
+    "NPopconfirm": true,
+    "NPopover": true,
+    "NTooltip": true
   }
 }

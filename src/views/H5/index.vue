@@ -58,13 +58,22 @@ const getLocation = () => {
     }
 }
 
+const lagLon = ref<{ lat: string; lon: string }>({ lat: '',lon: '' });
+
 const success = async (pos: any) => {
     const { latitude, longitude } = pos.coords;
-    const { code, data } = await storeListApi({ lat: latitude, lon: longitude })
+    lagLon.value.lat = latitude;
+    lagLon.value.lon = longitude;
+    searChange();
+}
+
+const searChange = async () => {
+    const { code, data, msg } = await storeListApi({ lat: lagLon.value.lat, lon: lagLon.value.lon, storeName: searchValue.value })
     if (code === 0) {
         stroeList.value = data;
+    } else {
+        showToast(msg)
     }
-
 }
 
 const error = (_err: any) => {
@@ -85,7 +94,8 @@ onMounted(() => {
     <div class="choose-restaurant">
         <van-nav-bar title="选择门店"></van-nav-bar>
         <div class="choose-restaurant-box">
-            <van-search v-model="searchValue" placeholder="在这里输入地址搜索门店" />
+            <van-search v-model="searchValue" placeholder="在这里输入地址搜索门店" @search="searChange"
+                @click-left-icon="searChange" />
             <div class="restaurant-shop" v-show="!showLoading">
                 <div class="restaurant-shop-box" v-for="item in stroeList" :key="item.storeCode"
                     @click="orderRestaurant(item)">

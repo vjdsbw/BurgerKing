@@ -61,9 +61,10 @@ const getPromotionCalculate = async () => {
     const params = {
         setProducts: assemble(),
         storeName: order.orderShop.storeName,
-        storeSn: order.orderShop.storeCode
+        storeSn: order.orderShop.storeCode,
+        takeType:pickupType.value,
     }
-    const { code, data } = await promotionCalculateApi(params)
+    const { code, data,msg } = await promotionCalculateApi(params)
     if (code === 0) {
         getOrderCalculate()
     } else {
@@ -76,7 +77,8 @@ const getOrderCalculate = async () => {
     const params = {
         setProducts: assemble(),
         storeName: order.orderShop.storeName,
-        storeSn: order.orderShop.storeCode
+        storeSn: order.orderShop.storeCode,
+        takeType:pickupType.value,
     }
     const { code, data, msg } = await orderCalculateApi(params)
     if (code === 0) {
