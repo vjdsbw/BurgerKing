@@ -1,5 +1,5 @@
 <script setup lang="ts" name="Account-Manage">
-import { userListApi, balanceApi, verifyCodeApi, bindApi, reloginApi } from "@/api/couponsManger";
+import { userListApi, balanceApi, verifyCodeApi, bindApi, reloginApi, deleteApi } from "@/api/couponsManger";
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 import { CloseCircleOutline } from '@vicons/ionicons5';
 import { NPopover, useMessage } from 'naive-ui'
@@ -36,7 +36,7 @@ const bindForm = ref<{ bindPhone: string; bindCaptcha: string }>({ bindPhone: ''
 
 const countDown = ref<number>(60);
 
-const getCode = async (num:number) => {
+const getCode = async (num: number) => {
     if (!bindForm.value.bindPhone) return message.warning('请填写手机号')
     countDown.value = 59
     let params = {
@@ -147,7 +147,7 @@ const columns: DataTableColumns<Row> = [
         key: 'Action',
         align: "center",
         width: 400,
-        render(row) {
+        render: (row) => {
             return [
                 h(
                     NPopover,
@@ -202,8 +202,13 @@ const columns: DataTableColumns<Row> = [
                             size: 'tiny',
                             bordered: true,
                         },
-                        onPositiveClick: (e: any) => {
-                            alert(1)
+                        onPositiveClick: async (e: any) => {
+                            const { code, msg } = await deleteApi({ userUidId: row.userUidId })
+                            if (code === 0) {
+                                message.success("删除成功")
+                            } else {
+                                message.error(msg)
+                            }
                         }
                     },
                     {

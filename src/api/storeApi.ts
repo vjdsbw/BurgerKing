@@ -46,4 +46,4 @@ export const orderCreateApi = (params: any) => http.post("/api/order/orderCreate
 export const salesSceneApi = (params: { storeCode: string }) => http.get("/api/store/sales_scene", params);
 
 // 订单详情
-export const orderDetailApi = (params: { storeCode: string }) => http.get("/api/order/orderInfo", params);
+export const orderDetailApi = () => http.get("/api/order/orderInfo");

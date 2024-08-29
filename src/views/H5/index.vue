@@ -9,7 +9,7 @@ const router = useRouter()
 
 const searchValue = ref<string>('');
 
-const orderRestaurant = (shop:any) => {
+const orderRestaurant = (shop: any) => {
     order.saveOrderShop(shop);
     if (shop.status === '营业中') {
         showDialog({
@@ -19,7 +19,7 @@ const orderRestaurant = (shop:any) => {
         }).then(() => {
             router.push({
                 name: "H5-selfOrder",
-            });  
+            });
         }).catch(() => {
             console.log('点击了取消')
         })
@@ -35,11 +35,10 @@ const getCodeStutus = async () => {
     const { code, data } = await statusApi();
     showLoading.value = false
     if (code === 0) {
-        if (data.status === 1) {
-            // limitPrice.value = data.couponPrice
-            // global.setLimitPrice(data);
-            // const shop = global.shopGet
-            // shop.storeId ? getMenus(shop.storeId) : getLocation()
+        showLoading.value = false;
+        getLocation()
+        if (data.status === '1') {
+            router.push({ name: "H5-orderDetail" })
         } else {
             showLoading.value = false;
             getLocation()

@@ -23,10 +23,13 @@ export const userListApi = (params: { pageNo: number, pageSize: number, phone: s
 export const balanceApi = (params: { userUidId: number }) => http.get("/console/user_uid/query_balance", params);
 
 //获取验证码
-export const verifyCodeApi = (params: { mobile: string, queryType: string }) => http.post("/console/user_uid/get_verify_code", params);
+export const verifyCodeApi = (params: { mobile: string, queryType: number }) => http.post("/console/user_uid/get_verify_code", params);
 
 ///绑定账号
 export const bindApi = (params: { mobile: string, verifyCode: string }) => http.post("console/user_uid/bind", params);
 
 //重新登录
 export const reloginApi = (params: { userUidId: number, verifyCode: string }) => http.post("/console/user_uid/relogin", params);
+
+//删除绑定的手机号
+export const deleteApi = (params: { userUidId: number }) => http.post("/console/user_uid/delete", params);

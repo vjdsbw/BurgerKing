@@ -178,7 +178,7 @@ const columns: DataTableColumns<Row> = [
         </n-card>
 
         <n-modal v-model:show="showModal">
-            <n-card style="width: 600px" preset="card" title="卡卷详情" :bordered="false" :mask-closable="false">
+            <n-card style="width: 600px" preset="card" title="卡劵详情" :bordered="false" :mask-closable="false">
                 <template #header-extra>
                     <n-icon size="20" @click="showModal = false" style="cursor: pointer;">
                         <CloseCircleOutline />

@@ -14,9 +14,6 @@ const onClickLeft = () => router.push(`/h5?code=${user.code}`)
 const pickupType = ref<number>(1)
 
 const preOrder = () => {
-    // router.push({
-    //     name: "H5-orderDetail"
-    // })
     showDialog({
         title: '确认下单么?',
         showCancelButton: true,
@@ -61,17 +58,17 @@ const assemble = () => {
 
 //优惠计算
 const getPromotionCalculate = async () => {
-    // const params = {
-    //     setProducts: assemble(),
-    //     storeName: order.orderShop.storeName,
-    //     storeSn: order.orderShop.storeCode
-    // }
-    // const { code, data } = await promotionCalculateApi(params)
-    // if (code === 0) {
-    //     getOrderCalculate()
-    // }
-
-    getOrderCreate()
+    const params = {
+        setProducts: assemble(),
+        storeName: order.orderShop.storeName,
+        storeSn: order.orderShop.storeCode
+    }
+    const { code, data } = await promotionCalculateApi(params)
+    if (code === 0) {
+        getOrderCalculate()
+    } else {
+        showToast(msg)
+    }
 }
 
 //订单计算 
@@ -81,11 +78,13 @@ const getOrderCalculate = async () => {
         storeName: order.orderShop.storeName,
         storeSn: order.orderShop.storeCode
     }
-    const { code, data } = await orderCalculateApi(params)
+    const { code, data, msg } = await orderCalculateApi(params)
     if (code === 0) {
         getOrderCreate()
+    } else {
+        showToast(msg)
     }
-    
+
 }
 
 //创建订单 
@@ -151,10 +150,11 @@ const getOrderCreate = async () => {
         pickupType: pickupType.value,
         skuType: order.orderInfo[0].skuType
     }
-    const { code, data } = await orderCreateApi(params)
-    router.push({name:'H5-orderDetail'})
+    const { code, data,msg } = await orderCreateApi(params)
     if (code === 0) {
-        router.push({name:'H5-orderDetail'})
+        router.push({ name: 'H5-orderDetail' })
+    }else{
+        showToast(msg)
     }
 }
 

@@ -15,12 +15,12 @@ const router = useRouter()
 
 const detailInfo = ref<any>({})
 const getInfo = async () => {
-
-    // const { code, data, msg } = await orderDetailApi({ storeCode: order.orderShop.storeCode })
-    const { code, data, msg } = await orderDetailApi({ storeCode: '29654-1' })
+    const { code, data, msg } = await orderDetailApi()
     if (code === 0) {
         detailInfo.value = data;
-        detailInfo.value.diningCabinetNumber = JSON.parse(data.diningCabinetNumber)[0]
+        if (data.diningCabinetNumber) {
+            detailInfo.value.diningCabinetNumber = JSON.parse(data.diningCabinetNumber)[0]
+        }
     } else {
         showToast(msg)
     }

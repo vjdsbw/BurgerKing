@@ -13,8 +13,8 @@ const handleSelect = async () => {
     if (code === 0) {
         user.setToken("")
         user.setUserName("")
-        router.push({ name: "PC-Login" })
     }
+    router.push({ name: "PC-Login" })
 }
 const renderIcon = (icon: Component) => {
     return () => h(NIcon, null, { default: () => h(icon) })
@@ -40,7 +40,7 @@ const menuOptions: MenuOption[] = [
         icon: renderIcon(PeopleCircle)
     },
     {
-        label: '卡卷管理',
+        label: '卡劵管理',
         key: 'PC-CouponsManger-Index',
         icon: renderIcon(NewspaperOutline)
     },
