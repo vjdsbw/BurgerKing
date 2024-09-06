@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { setupLayouts } from 'virtual:generated-layouts'
 import generatedRoutes from 'virtual:generated-pages';
-import { routerWithList } from '@/config/const'
 import { Store } from "@/store";
 
 const routes = generatedRoutes.map((v: any) =>
@@ -32,5 +31,4 @@ const router = createRouter({
   //正常访问页面
   // next();
 // });
-
 export default router;

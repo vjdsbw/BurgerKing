@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { Store } from "@/store";
+import router from '@/routes';
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
     noLoading?: boolean;
@@ -55,6 +56,10 @@ class RequestHttp {
         this.service.interceptors.response.use(
             (response: AxiosResponse) => {
                 const { data } = response;
+                const { code } = data
+                if (code === 1000) {
+                    router.push({ name: 'PC-Login' })
+                }
                 return data;
             },
             async (error: AxiosError) => {

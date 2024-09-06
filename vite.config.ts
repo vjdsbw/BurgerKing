@@ -50,7 +50,7 @@ export default defineConfig({
     Layouts({
       layoutsDirs: 'src/layouts', // 布局文件存放目录
       pagesDirs: 'src/views', // 页面文件存放目录
-      defaultLayout: 'index' // 默认布局，对应 src/layout/Index.vue
+      defaultLayout: 'Index' // 默认布局，对应 src/layout/Index.vue
     }),
     VueSetupExtend()
   ],
@@ -65,10 +65,10 @@ export default defineConfig({
   server: {
     hmr: true,			// ← ← ← ← ← ←
     host: '0.0.0.0',	// ← 新增内容 ←
-    port:5173,
+    port:5174,
     proxy: {
       '^/api': {
-        target: 'http://122.51.67.196:8081/coffee',
+        target: 'http://122.51.67.196:12001/hanbao',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

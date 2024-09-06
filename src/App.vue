@@ -1,11 +1,13 @@
 <script setup lang="ts" name="App"></script>
 
 <template>
-  <router-view v-slot="{ Component, route }">
-    <transition name="MainFade" mode="out-in">
+  <n-message-provider>
+    <router-view v-slot="{ Component, route }">
+      <transition name="MainFade" mode="out-in">
         <component :is="Component" :key="route.path" />
-    </transition>
-  </router-view>
+      </transition>
+    </router-view>
+  </n-message-provider>
 </template>
 
 <style scoped lang="scss">
@@ -22,5 +24,4 @@
 // }
 // .MainFade-leave-active {
 //    transition: all 0.3s cubic-bezier(1, 0.6, 0.6, 1);
-// }
-</style>
+// }</style>

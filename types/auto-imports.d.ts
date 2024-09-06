@@ -6,6 +6,12 @@
 export {}
 declare global {
   const EffectScope: typeof import('vue')['EffectScope']
+  const NButton: typeof import('naive-ui')['NButton']
+  const NIcon: typeof import('naive-ui')['NIcon']
+  const NPopconfirm: typeof import('naive-ui')['NPopconfirm']
+  const NPopover: typeof import('naive-ui')['NPopover']
+  const NTooltip: typeof import('naive-ui')['NTooltip']
+  const NULL: typeof import('naive-ui')['NULL']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
@@ -57,6 +63,7 @@ declare global {
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
   const showConfirmDialog: typeof import('vant/es')['showConfirmDialog']
+  const showDialog: typeof import('vant/es')['showDialog']
   const showToast: typeof import('vant/es')['showToast']
   const storeToRefs: typeof import('pinia')['storeToRefs']
   const toRaw: typeof import('vue')['toRaw']
