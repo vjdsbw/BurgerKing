@@ -1,5 +1,5 @@
 <script setup lang="ts" name="Account-Manage">
-import { userListApi, balanceApi, verifyCodeApi, bindApi, reloginApi, deleteApi } from "@/api/couponsManger";
+import { userListApi, balanceApi, verifyCodeApi, bindApi, reloginApi, deleteApi, forbiddenApi, availableApi } from "@/api/couponsManger";
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 import { CloseCircleOutline } from '@vicons/ionicons5';
 import { NPopover, useMessage } from 'naive-ui'
@@ -12,6 +12,7 @@ interface Row {
     orderCount: string
     phone: string
     userUidId: number
+    status: '0' | '1' //0是禁用，1是启用
 }
 
 const rowInfo = ref<Row>({
@@ -19,7 +20,8 @@ const rowInfo = ref<Row>({
     loginResult: "",
     orderCount: "",
     phone: "",
-    userUidId: 0
+    userUidId: 0,
+    status: '1'
 });
 
 const tableData = ref<Row[]>([])
@@ -150,7 +152,7 @@ const columns: DataTableColumns<Row> = [
         key: 'Action',
         align: "center",
         width: 400,
-        render: (row) => {
+        render: (row: Row) => {
             return [
                 h(
                     NPopover,
@@ -229,6 +231,76 @@ const columns: DataTableColumns<Row> = [
                         default: () => '确认删除该账号?'
                     }
                 ),
+                row.status === '1' ? h(
+                    NPopconfirm,
+                    {
+                        negativeText: '取消',
+                        positiveText: '确定',
+                        positiveButtonProps: {
+                            size: 'tiny',
+                            color: 'red',
+                            bordered: true,
+                        },
+                        negativeButtonProps: {
+                            size: 'tiny',
+                            bordered: true,
+                        },
+                        onPositiveClick: async () => {
+                            const { code, msg } = await forbiddenApi({ userUidId: row.userUidId })
+                            code === 0 ? message.success("操作成功") : message.error(msg)
+                            getUserList()
+                        }
+                    },
+                    {
+                        trigger: () => {
+                            return h(
+                                NButton,
+                                {
+                                    size: 'small',
+                                    type: 'error',
+                                    style: { width: '80px', marginRight: '10px' },
+                                },
+                                { default: () => '禁用' }
+                            )
+                        },
+                        default: () => '确认禁用该账号?'
+                    }
+                ) :
+                    h(
+                        NPopconfirm,
+                        {
+                            negativeText: '取消',
+                            positiveText: '确定',
+                            positiveButtonProps: {
+                                size: 'tiny',
+                                color: '#2080f0',
+                                bordered: true,
+                            },
+                            negativeButtonProps: {
+                                size: 'tiny',
+                                bordered: true,
+                            },
+                            onPositiveClick: async () => {
+                                const { code, msg } = await availableApi({ userUidId: row.userUidId })
+                                code === 0 ? message.success("操作成功") : message.error(msg)
+                                getUserList()
+                            }
+                        },
+                        {
+                            trigger: () => {
+                                return h(
+                                    NButton,
+                                    {
+                                        size: 'small',
+                                        type: 'info',
+                                        style: { width: '80px', marginRight: '10px' },
+                                    },
+                                    { default: () => '启用' }
+                                )
+                            },
+                            default: () => '确认启用该账号?'
+                        }
+                    ),
             ]
         }
     }

@@ -11,6 +11,7 @@ declare global {
   const NPopconfirm: typeof import('naive-ui')['NPopconfirm']
   const NPopover: typeof import('naive-ui')['NPopover']
   const NTooltip: typeof import('naive-ui')['NTooltip']
+  const NULL: typeof import('naive-ui')['NULL']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']

@@ -1,5 +1,5 @@
 <script setup lang="ts" name="Coupons-Manger">
-import { couponListApi, listByPhoneApi, batchGenApi } from "@/api/couponsManger";
+import { couponListApi, listByPhoneApi, sendCouponApi } from "@/api/couponsManger";
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 import { CloseCircleOutline } from '@vicons/ionicons5';
 import { useMessage } from 'naive-ui'
@@ -24,71 +24,34 @@ const viewDetail = (row: Row) => {
     description.value = row.description
 }
 
-
-const selectLoading = ref<boolean>(false)
-
 const linkModal = ref<boolean>(false);
 
-const linkForm = ref<{ num: number; userUidId: string }>({ num: 1, userUidId: "" });
+const linkForm = ref<{ num: number; userUidId: number | null }>({ num: 1, userUidId: null });
 
 const generalOptions = ref<{ label: string; phone: string; value: number }[]>([])
 
 const rules: FormRules = {
-    num: [{ required: true, message: '请输入数量', trigger: ['input', 'blur'] }],
-    userUidId: [{ required: true, message: '请输入/选择手机号', trigger: ['input', 'blur'] }],
+    num: [{ required: true, message: '请输入数量', }],
+    userUidId: [{ required: true, message: '请输入/选择手机号', }],
 }
 
-const linkList = ref<string[]>([''])
-const createLink = async () => {
+const vouchersChange = async () => {
+    if (!linkForm.value.userUidId) return message.warning('请先选择手机号')
+    if (!linkForm.value.num) return message.warning('请确认数量')
     const params = {
         couponCenterId: rowInfo.value.couponCenterId,
         couponId: rowInfo.value.couponId,
-        currentPrice: rowInfo.value.currentPrice,
         num: linkForm.value.num,
-        sellType: rowInfo.value.sellType,
-        userUidId: linkForm.value.userUidId,
+        userUidId: linkForm.value.userUidId
     }
-    const { code, data, msg } = await batchGenApi(params)
+    const { code, data, msg } = await sendCouponApi(params)
     if (code === 0) {
-        message.success("创建成功")
-        linkList.value = data
+        couponList()
+        linkModal.value = false
+        message.success('领取成功')
     } else {
         message.error(msg)
     }
-}
-
-const copyLink = () => {
-    const copyText = linkList.value.join('\n')
-    try {
-        if (navigator.clipboard && window.isSecureContext) {
-            message.success('复制链接成功')
-            return navigator.clipboard.writeText(copyText);
-        } else {
-            // 创建 textarea
-            let textarea: any = document.createElement("textarea");
-            textarea.value = copyText;
-            textarea.style.opacity = 0;        // 使 textarea 不在 viewport，同时设置不可见
-            document.body.appendChild(textarea);
-            textarea.focus();
-            textarea.select();
-            document.execCommand('copy') ? message.success('复制链接成功') : message.error('复制链接失败');
-            textarea.remove();
-
-        }
-    } catch (err) {
-        message.error('复制链接失败')
-    }
-}
-
-const handleSearch = async (query: string) => {
-    selectLoading.value = true
-    const { code, data, msg } = await listByPhoneApi({ phone: query });
-    if (code === 0) {
-        generalOptions.value = data.map((item: any) => ({ label: item.phone, phone: item.phone, value: item.userUidId }))
-    } else {
-        message.warning(msg)
-    }
-    selectLoading.value = false;
 }
 
 const couponList = async () => {
@@ -155,13 +118,18 @@ const columns: DataTableColumns<Row> = [
                         size: 'small',
                         type: "info",
                         style: { width: '150px' },
-                        onClick: () => {
+                        onClick: async () => {
                             rowInfo.value = row;
-                            linkList.value.length = 0;
-                            linkModal.value = true;
+                            const { code, data, msg } = await listByPhoneApi({});
+                            if (code === 0) {
+                                generalOptions.value = data.map((item: any) => ({ label: item.phone, phone: item.phone, value: item.userUidId }))
+                                linkModal.value = true;
+                            } else {
+                                message.warning(msg)
+                            }
                         }
                     },
-                    { default: () => '创建链接' }
+                    { default: () => '领取卡券' }
                 ),
             ]
         }
@@ -188,30 +156,21 @@ const columns: DataTableColumns<Row> = [
             </n-card>
         </n-modal>
         <n-modal v-model:show="linkModal">
-            <n-card style="width: 600px" preset="card" :title="linkList.length === 0 ? '创建链接' : '创建完成'"
-                :bordered="false" :mask-closable="false">
-                <div v-if="linkList.length === 0">
-                    <n-form ref="formRef" :model="linkForm" :rules="rules" label-placement="left" label-width="auto"
-                        require-mark-placement="right-hanging">
-                        <n-form-item label="选择账号" path="userUidId">
-                            <n-select v-model:value="linkForm.userUidId" placeholder="请输入手机号" :options="generalOptions"
-                                filterable remote clearable :loading="selectLoading" @search="handleSearch" />
-                        </n-form-item>
-                        <n-form-item label="输入数量" path="num">
-                            <n-input-number clearable v-model:value="linkForm.num" :min="1" />
-                        </n-form-item>
-                    </n-form>
-                    <n-space reverse>
-                        <n-button type="info" @click="createLink">确认</n-button>
-                        <n-button type="tertiary" @click="linkModal = false">取消</n-button>
-                    </n-space>
-                </div>
-                <div v-else>
-                    <div style="height: 200px;overflow-y: scroll;">
-                        <div v-for="item in linkList" :key="item">{{ item }}</div>
-                    </div>
-                    <n-button type="info" @click="copyLink" style="margin-top: 10px;width: 100%;">点击复制</n-button>
-                </div>
+            <n-card style="width: 600px" preset="card" title="领取卡券" :bordered="false" :mask-closable="false">
+                <n-form ref="formRef" :model="linkForm" :rules="rules" label-placement="left" label-width="auto"
+                    require-mark-placement="right-hanging">
+                    <n-form-item label="选择账号" path="userUidId">
+                        <n-select v-model:value="linkForm.userUidId" placeholder="请输入手机号" :options="generalOptions"
+                            filterable remote clearable />
+                    </n-form-item>
+                    <n-form-item label="输入数量" path="num">
+                        <n-input-number clearable v-model:value="linkForm.num" :min="1" />
+                    </n-form-item>
+                </n-form>
+                <n-space reverse>
+                    <n-button type="info" @click="vouchersChange">确认</n-button>
+                    <n-button type="tertiary" @click="linkModal = false">取消</n-button>
+                </n-space>
             </n-card>
         </n-modal>
     </n-card>

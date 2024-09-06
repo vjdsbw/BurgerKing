@@ -87,6 +87,7 @@
     "NIcon": true,
     "NPopconfirm": true,
     "NPopover": true,
-    "NTooltip": true
+    "NTooltip": true,
+    "NULL": true
   }
 }

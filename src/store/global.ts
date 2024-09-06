@@ -9,7 +9,7 @@ interface GlobalState {
 
 export const useGlobalStore = defineStore({
     id: 'global', // id必填，且需要唯一
-    state: (): UserState => {
+    state: (): GlobalState => {
         return {
             activeMenu: "",
         };

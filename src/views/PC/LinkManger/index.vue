@@ -87,6 +87,10 @@ const expoetDown = async () => {
     const params = {
         status: exportForm.value.status!,
         userUidId: exportForm.value.userUidId!,
+        usedStartDate:'',
+        usedEndDate:'',
+        createStartDate:'',
+        createEndDate:''
     }
     if (exportForm.value.useTime) {
         params.usedStartDate = dayjs(exportForm.value.useTime[0]).format('YYYY-MM-DD HH:mm:ss');
@@ -413,14 +417,6 @@ const columns: DataTableColumns<Row> = [
 
         <n-modal v-model:show="exportModal">
             <n-card style="width: 600px" preset="card" title="导出链接" :bordered="false" :mask-closable="false">
-                <div style="display: flex;align-items: center;justify-content: space-between;margin-top: 10px">
-                    <!-- <n-input v-model:value="bindForm.bindCaptcha" clearable placeholder="请输入验证码" style="width: 55%;" />
-                    <n-button type="info" style="width: 40%;" @click="getCode(1)"
-                        :disabled="countDown !== 60 && countDown !== 0">
-                        <span v-show="countDown > 0">获取验证码({{ countDown }})</span>
-                        <span v-show="countDown === 0">重新获取验证码</span>
-                    </n-button> -->
-                </div>
                 <n-form ref="exportFormRef" :model="exportForm" :rules="rules" label-placement="left" label-width="auto"
                     require-mark-placement="right-hanging" size="small" :style="{ maxWidth: '640px', }">
                     <n-form-item label="请选择查询的手机号" path="userUidId">

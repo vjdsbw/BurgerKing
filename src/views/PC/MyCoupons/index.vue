@@ -7,20 +7,22 @@ import { useMessage } from 'naive-ui'
 const message = useMessage()
 
 interface Row {
-    couponCenterId: number,
     couponId: string,
     couponName: string,
     currentPrice: string,
     description: string,
+    promotionData: string,
+    num: number,
     sellType: number;
+    skuCode: string;
 }
 
-const phone = ref<string | null>(null)
+const phone = ref<number | null>(null)
 
 const tableData = ref<Row[]>([])
 
 const showModal = ref<boolean>(false)
-const description = ref<any>()
+const description = ref<string>()
 const viewDetail = (row: Row) => {
     showModal.value = true;
     description.value = row.description
@@ -31,22 +33,24 @@ const selectLoading = ref<boolean>(false)
 
 const linkModal = ref<boolean>(false);
 
-const linkForm = ref<{ num: number; duration: number, confined: number, }>({ num: 1, duration: 7, confined: 1, });
+const linkForm = ref<{ num: number; duration: number, confined: number, limitPrice: number }>({ num: 1, duration: 7, confined: 1, limitPrice: 1 });
 
 const generalOptions = ref<{ label: string; phone: string; value: number }[]>([])
 
 const rules: FormRules = {
-    num: [{ required: true, message: '请输入数量', trigger: ['input', 'blur'] }],
-    userUidId: [{ required: true, message: '请输入/选择手机号', trigger: ['input', 'blur'] }],
+    num: [{ required: true, message: '请输入数量', }],
+    duration: [{ required: true, message: '请输入有效期', }],
+    limitPrice: [{ required: true, message: '请输入价格', }],
+    confined: [{ required: true, message: '请选择是否限定', }],
 }
 
 const linkList = ref<string[]>([''])
 
 const createLink = async () => {
-    let obj = {}
-    goodsInfo.value.forEach(item => {
+    let obj: any = {}
+    goodsInfo.value.forEach((item: any) => {
         obj[item.optionGroupId] = { showY: [], showN: [] }
-        item.itemsList.forEach((itm) => {
+        item.itemsList.forEach((itm: any) => {
             if (itm.isDefault === 'Y') {
                 obj[item.optionGroupId].showY.push(itm.skuId)
             } else {
@@ -57,11 +61,11 @@ const createLink = async () => {
     const params = {
         couponId: rowInfo.value.couponId,
         currentPrice: rowInfo.value.currentPrice,
-        couponCenterId: rowInfo.value.couponCenterId,
         sellType: rowInfo.value.sellType,
         validDay: linkForm.value.duration,
         num: linkForm.value.num,
         isLimit: linkForm.value.confined,
+        limitPrice: linkForm.value.limitPrice,
         goodsSource: 1,
         userUidId: phone.value,
         goodsList: JSON.stringify(obj)
@@ -101,6 +105,7 @@ const copyLink = () => {
 
 const tableLoading = ref<boolean>(false)
 const couponList = async () => {
+    if (!phone.value) return message.warning('请先选择账号')
     tableLoading.value = true
     const { code, data, msg } = await myListApi({ userUidId: phone.value })
     if (code === 0) {
@@ -113,7 +118,7 @@ const couponList = async () => {
 
 const phoneList = ref<{ label: string, phone: string, value: number }[]>([])
 const getPhoneList = async () => {
-    const { code, data, msg } = await listByPhoneApi();
+    const { code, data, msg } = await listByPhoneApi({});
     if (code === 0) {
         phoneList.value = data.map((item: any) => ({ label: item.phone, phone: item.phone, value: item.userUidId }))
     } else {
@@ -126,18 +131,21 @@ onMounted(() => {
 })
 
 const rowInfo = ref<Row>({
-    couponCenterId: 0,
     couponId: "",
     couponName: "",
     currentPrice: "",
     description: "",
-    sellType: 0
+    promotionData: "",
+    skuCode: "",
+    sellType: 0,
+    num: 0,
 });
 
 const goodsInfo = ref<any>([])
+const defaultCheck = ref<any>({})
 
-const checKboxChange = (val, goods: any) => {
-    goods.itemsList.forEach(element => {
+const checKboxChange = (val: any, goods: any) => {
+    goods.itemsList.forEach((element: any) => {
         if (val.includes(element.skuId)) {
             element.isDefault = 'Y'
         } else {
@@ -150,9 +158,9 @@ const checKboxChange = (val, goods: any) => {
 const columns: DataTableColumns<Row> = [
     {
         title: "序号",
-        key: "couponCenterId",
+        key: "couponId",
         align: "center",
-        render: (_rowData: object, rowIndex: number) => {
+        render: (_rowData: Row, rowIndex: number) => {
             return rowIndex + 1
         }
     },
@@ -176,7 +184,7 @@ const columns: DataTableColumns<Row> = [
         key: 'Action',
         align: "center",
         width: 400,
-        render(row) {
+        render: (row: Row) => {
             return [
                 h(
                     NButton,
@@ -194,12 +202,22 @@ const columns: DataTableColumns<Row> = [
                         size: 'small',
                         type: "info",
                         style: { width: '150px' },
+                        disabled: row.num === 0,
                         onClick: async () => {
                             const { code, data, msg } = await goodsDetailApi({ sellType: row.sellType, skuCode: row.skuCode })
                             if (code === 0) {
+                                data.forEach((e: any) => {
+                                    defaultCheck.value[e.optionGroupId] = [];
+                                    e.itemsList.forEach((itm: any) => {
+                                        if (itm.isShow === '1') {
+                                            defaultCheck.value[e.optionGroupId].push(itm.skuId)
+                                        }
+                                    })
+                                })
                                 rowInfo.value = row;
                                 goodsInfo.value = data;
                                 linkList.value.length = 0;
+                                linkForm.value.limitPrice = Number(row.currentPrice)
                                 linkModal.value = true;
                             } else {
                                 message.error(msg)
@@ -252,6 +270,9 @@ const columns: DataTableColumns<Row> = [
                         <n-form-item label="有效期(天)" path="duration">
                             <n-input-number clearable v-model:value="linkForm.duration" :min="1" />
                         </n-form-item>
+                        <n-form-item label="限定价格(元)" path="limitPrice">
+                            <n-input-number clearable v-model:value="linkForm.limitPrice" :min="1" />
+                        </n-form-item>
                         <n-form-item label="是否限定商品" path="confined">
                             <n-radio-group v-model:value="linkForm.confined">
                                 <n-radio :value="0">否</n-radio>
@@ -261,10 +282,10 @@ const columns: DataTableColumns<Row> = [
                         <div class="my-coupons-box-goods-box">
                             <n-form-item v-show="linkForm.confined === 1" v-for="item in goodsInfo" :key="item.id"
                                 :label="item.roundName">
-                                <n-checkbox-group :min="item.saleQty"
+                                <n-checkbox-group :min="item.saleQty" :default-value="defaultCheck[item.optionGroupId]"
                                     @update:value="(val) => checKboxChange(val, item)">
                                     <n-space v-for="itemInfo in item.itemsList" :key="itemInfo.skuId"
-                                        v-show="itemInfo.isShow === '1'" style="display: inline-block;margin: 0px 10px">
+                                        style="display: inline-block;margin: 0px 10px">
                                         <n-checkbox :value="itemInfo.skuId"></n-checkbox>
                                         <div class="my-coupons-box-goods-select">
                                             <n-image width="70" height="50" :src="itemInfo.mainImageUrl" />

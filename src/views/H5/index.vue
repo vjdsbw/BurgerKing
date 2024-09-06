@@ -23,6 +23,8 @@ const orderRestaurant = (shop: any) => {
         }).catch(() => {
             console.log('点击了取消')
         })
+    } else {
+        showToast('该门店未在营业时间，请选择其他门店')
     }
 }
 
@@ -58,7 +60,7 @@ const getLocation = () => {
     }
 }
 
-const lagLon = ref<{ lat: string; lon: string }>({ lat: '',lon: '' });
+const lagLon = ref<{ lat: string; lon: string }>({ lat: '', lon: '' });
 
 const success = async (pos: any) => {
     const { latitude, longitude } = pos.coords;

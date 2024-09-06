@@ -1,7 +1,7 @@
 <script setup lang="ts" name="Layout">
 import avatar from "@/assets/PC/avatar.png";
 import { logoutApi } from "@/api/login";
-import { Home, LogoLinkedin, NewspaperOutline, PeopleCircle } from '@vicons/ionicons5'
+import { Home, LogoLinkedin, NewspaperOutline, PeopleCircle,LocationSharp } from '@vicons/ionicons5'
 import { Store } from "@/store";
 import type { MenuOption } from 'naive-ui'
 const { user, global } = Store();
@@ -45,7 +45,7 @@ const menuOptions: MenuOption[] = [
         icon: renderIcon(NewspaperOutline),
         children: [
             {
-                label: '我的优惠卷',
+                label: '我的优惠劵',
                 key: 'PC-MyCoupons',
             },
             {
@@ -58,6 +58,11 @@ const menuOptions: MenuOption[] = [
         label: '链接管理',
         key: 'PC-LinkManger',
         icon: renderIcon(LogoLinkedin)
+    },
+    {
+        label: '门店管理',
+        key: 'PC-StoreManager',
+        icon: renderIcon(LocationSharp)
     },
 ];
 
