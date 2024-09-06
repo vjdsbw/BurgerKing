@@ -4,7 +4,7 @@ import { logoutApi } from "@/api/login";
 import { Home, LogoLinkedin, NewspaperOutline, PeopleCircle } from '@vicons/ionicons5'
 import { Store } from "@/store";
 import type { MenuOption } from 'naive-ui'
-const { user } = Store();
+const { user, global } = Store();
 
 const router = useRouter()
 
@@ -41,8 +41,18 @@ const menuOptions: MenuOption[] = [
     },
     {
         label: '卡劵管理',
-        key: 'PC-CouponsManger',
-        icon: renderIcon(NewspaperOutline)
+        key: 'PC',
+        icon: renderIcon(NewspaperOutline),
+        children: [
+            {
+                label: '我的优惠卷',
+                key: 'PC-MyCoupons',
+            },
+            {
+                label: '领劵中心',
+                key: 'PC-CouponsManger',
+            },
+        ]
     },
     {
         label: '链接管理',
@@ -51,7 +61,10 @@ const menuOptions: MenuOption[] = [
     },
 ];
 
-const changeMenu = (key: string, _item: MenuOption) => router.push({ name: key })
+const changeMenu = (key: string, _item: MenuOption) => {
+    global.setActiveMenu(key)
+    router.push({ name: key })
+}
 
 </script>
 
@@ -73,7 +86,7 @@ const changeMenu = (key: string, _item: MenuOption) => router.push({ name: key }
                 <n-layout-sider bordered collapse-mode="width" :collapsed-width="64" :width="240" :collapsed="collapsed"
                     show-trigger @collapse="collapsed = true" @expand="collapsed = false">
                     <n-menu :collapsed="collapsed" :collapsed-width="64" :collapsed-icon-size="22"
-                        :options="menuOptions" @update:value="changeMenu" />
+                        :options="menuOptions" @update:value="changeMenu" v-model:value="global.activeMenu" />
                 </n-layout-sider>
                 <n-layout content-style="padding: 24px;" style="background-color: #ededed">
                     <router-view></router-view>

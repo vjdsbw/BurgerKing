@@ -3,7 +3,8 @@
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import { useUserStore } from './user';
-import { useOrderStore } from './order'
+import { useOrderStore } from './order';
+import { useGlobalStore } from './global'
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
@@ -11,7 +12,8 @@ pinia.use(piniaPluginPersistedstate);
 export const Store = () => {
     return {
         user: useUserStore(),
-        order: useOrderStore()
+        order: useOrderStore(),
+        global: useGlobalStore()
     };
 };
 

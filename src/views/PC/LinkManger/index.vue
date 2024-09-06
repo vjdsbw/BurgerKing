@@ -2,7 +2,7 @@
 import { shortCodeApi, deleteCodeApi, replaceCodeApi, listByPhoneApi, downloadApi } from "@/api/couponsManger";
 import type { DataTableColumns, FormRules, FormInst } from 'naive-ui'
 import { useMessage } from 'naive-ui'
-
+import dayjs from 'dayjs'
 const message = useMessage()
 
 interface Row {
@@ -41,8 +41,8 @@ const exportFormRef = ref<FormInst | null>(null)
 const exportForm = ref<{
     status: string | null,
     userUidId: number | null,
-    useTime: number[] | null,
-    createTime: number[] | null
+    useTime: [number, number] | null,
+    createTime: [number, number] | null
 }>({
     status: null,
     userUidId: null,
@@ -85,28 +85,38 @@ const exportExcel = async () => {
 }
 const expoetDown = async () => {
     const params = {
-        createEndDate: '',
-        createStartDate: '',
-        status: exportForm.value.status,
-        userUidId: exportForm.value.userUidId,
-        usedEndDate: '',
-        usedStartDate: '',
+        status: exportForm.value.status!,
+        userUidId: exportForm.value.userUidId!,
     }
-    const res = await downloadApi(params)
+    if (exportForm.value.useTime) {
+        params.usedStartDate = dayjs(exportForm.value.useTime[0]).format('YYYY-MM-DD HH:mm:ss');
+        params.usedEndDate = dayjs(exportForm.value.useTime[1]).format('YYYY-MM-DD HH:mm:ss')
+    }
+    if (exportForm.value.createTime) {
+        params.createStartDate = dayjs(exportForm.value.createTime[0]).format('YYYY-MM-DD HH:mm:ss');
+        params.createEndDate = dayjs(exportForm.value.createTime[1]).format('YYYY-MM-DD HH:mm:ss')
+    }
+    // const exportFormData = new FormData();
+    // exportFormData.append("status", exportForm.value.status)
+    // exportFormData.append("userUidId", exportForm.value.userUidId);
+    // if (exportForm.value.useTime) {
+    //     exportFormData.append("usedStartDate", dayjs(exportForm.value.useTime[0]).format('YYYY-MM-DD HH:mm:ss'))
+    //     exportFormData.append("usedEndDate", dayjs(exportForm.value.useTime[1]).format('YYYY-MM-DD HH:mm:ss'))
+    // }
+    // if (exportForm.value.createTime) {
+    //     exportFormData.append("createStartDate", dayjs(exportForm.value.createTime[0]).format('YYYY-MM-DD HH:mm:ss'))
+    //     exportFormData.append("createEndDate", dayjs(exportForm.value.createTime[1]).format('YYYY-MM-DD HH:mm:ss'))
+    // }
+    const res: any = await downloadApi(params)
     const url = URL.createObjectURL(res);
     const a = document.createElement('a');
     a.href = url;
-    a.download = '链接.xlsx';
+    a.download = '链接.xls';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    // if (code === 0) {
 
-    // } else {
-    //     console.log(res,'msgmsgmsgmsgmsgmsg')
-    //     message.error(msg)
-    // }
 }
 
 const totalNum = ref<number>(0)
@@ -115,7 +125,7 @@ const tableData = ref<Row[]>([])
 const tableDataLoading = ref<boolean>(false)
 const selectRowsKey = ref<string[]>([])
 const selectRows = ref<Row[]>([])
-const changeRowsSlect = (keys: string, rows: Row[]) => {
+const changeRowsSlect = (keys: any, rows: any) => {
     selectRowsKey.value = keys;
     selectRows.value = rows
 }
@@ -150,7 +160,7 @@ const bacthCopy = () => {
     copyLink(urlList)
 }
 
-const copyLink = (list) => {
+const copyLink = (list: string[]) => {
     const copyText = list.join('\n')
     try {
         if (navigator.clipboard && window.isSecureContext) {

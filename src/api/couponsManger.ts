@@ -14,6 +14,10 @@ export const batchGenApi = (params: {
     num: number,
     sellType: number,
     userUidId: string
+    validDay: number,
+    isLimit: number,
+    goodsSource: 1,
+    goodsList: string
 }) => http.post("/console/short_code/batchGen", params);
 
 // 分页查询绑定账号
@@ -53,11 +57,12 @@ export const deleteCodeApi = (params: { shortCode: string }) => http.post("/cons
 
 
 //导出短链
-export const downloadApi = (params: {
-    status: string,
-    userUidId: number,
-    createEndDate?: string,
-    createStartDate?: string,
-    usedEndDate?: string,
-    usedStartDate?: string,
-}) => http.post("/console/short_code/download", params, { responseType: 'blob' });
+export const downloadApi = (params: any) => http.post("/console/short_code/download", params, { responseType: 'blob' });
+
+//获取我的优惠券列表-全量
+export const myListApi = (params: { userUidId: number }) => http.get("/console/coupon/my_list", params);
+
+
+//查询商品详情
+export const goodsDetailApi = (params: { sellType: string, skuCode: string }) => http.get("/console/goods/detail", params);
+
