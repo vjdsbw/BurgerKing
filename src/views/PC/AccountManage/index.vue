@@ -170,14 +170,14 @@ const columns: DataTableColumns<Row> = [
                                     onClick: async () => {
                                         const { code, data } = await balanceApi({ userUidId: row.userUidId })
                                         if (code === 0) {
-                                            balance.value = data
+                                            balance.value = data.balance
                                         }
                                     }
                                 },
                                 { default: () => '余额查询' }
                             )
                         },
-                        default: () => `当前账户余额${balance.value}`
+                        default: () => `当前账户余额:${balance.value}`
                     }
                 ),
                 h(

@@ -45,16 +45,18 @@ const rules: FormRules = {
 }
 
 const linkList = ref<string[]>([''])
-
+const creatLoading = ref<boolean>(false)
 const createLink = async () => {
+    creatLoading.value = true;
     let obj: any = {}
     goodsInfo.value.forEach((item: any) => {
-        obj[item.optionGroupId] = { showY: [], showN: [] }
+        const key = item.optionGroupId + '-' + item.id
+        obj[key] = { showY: [], showN: [] }
         item.itemsList.forEach((itm: any) => {
             if (itm.isDefault === 'Y') {
-                obj[item.optionGroupId].showY.push(itm.skuId)
+                obj[key].showY.push(itm.skuId)
             } else {
-                obj[item.optionGroupId].showN.push(itm.skuId)
+                obj[key].showN.push(itm.skuId)
             }
         })
     })
@@ -78,6 +80,7 @@ const createLink = async () => {
     } else {
         message.error(msg)
     }
+    creatLoading.value = false;
 }
 
 const copyLink = () => {
@@ -207,10 +210,11 @@ const columns: DataTableColumns<Row> = [
                             const { code, data, msg } = await goodsDetailApi({ sellType: row.sellType, skuCode: row.skuCode })
                             if (code === 0) {
                                 data.forEach((e: any) => {
-                                    defaultCheck.value[e.optionGroupId] = [];
+                                    const key = e.optionGroupId + '-' + e.id
+                                    defaultCheck.value[key] = [];
                                     e.itemsList.forEach((itm: any) => {
                                         if (itm.isShow === '1') {
-                                            defaultCheck.value[e.optionGroupId].push(itm.skuId)
+                                            defaultCheck.value[key].push(itm.skuId)
                                         }
                                     })
                                 })
@@ -282,7 +286,8 @@ const columns: DataTableColumns<Row> = [
                         <div class="my-coupons-box-goods-box">
                             <n-form-item v-show="linkForm.confined === 1" v-for="item in goodsInfo" :key="item.id"
                                 :label="item.roundName">
-                                <n-checkbox-group :min="item.saleQty" :default-value="defaultCheck[item.optionGroupId]"
+                                <n-checkbox-group :min="item.saleQty"
+                                    :default-value="defaultCheck[item.optionGroupId + '-' + item.id]"
                                     @update:value="(val) => checKboxChange(val, item)">
                                     <n-space v-for="itemInfo in item.itemsList" :key="itemInfo.skuId"
                                         style="display: inline-block;margin: 0px 10px">
@@ -299,7 +304,7 @@ const columns: DataTableColumns<Row> = [
                         </div>
                     </n-form>
                     <n-space reverse>
-                        <n-button type="info" @click="createLink">确认</n-button>
+                        <n-button type="info" :loading="creatLoading" @click="createLink">确认</n-button>
                         <n-button type="tertiary" @click="linkModal = false">取消</n-button>
                     </n-space>
                 </div>

@@ -72,3 +72,9 @@ export const storeListApi = (params: { storeName: string }) => http.get("/consol
 
 //查询门店信息
 export const storeBaseInfoApi = (params: { storeCode: string }) => http.get("/console/store/base_info", params);
+
+//绑定门店
+export const bindStoreApi = (params: { storeCode: string }) => http.post("/console/store/bind", params);
+
+//查询你绑定的门店信息
+export const bindInfoApi = () => http.get("/console/store/default_info");

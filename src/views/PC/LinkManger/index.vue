@@ -1,9 +1,10 @@
 <script setup lang="ts" name="Link-Manage">
 import { shortCodeApi, deleteCodeApi, replaceCodeApi, listByPhoneApi, downloadApi } from "@/api/couponsManger";
 import type { DataTableColumns, FormRules, FormInst } from 'naive-ui'
-import { useMessage } from 'naive-ui'
+import { useMessage, useDialog } from 'naive-ui'
 import dayjs from 'dayjs'
 const message = useMessage()
+const dialog = useDialog()
 
 interface Row {
     couponName: string
@@ -87,10 +88,10 @@ const expoetDown = async () => {
     const params = {
         status: exportForm.value.status!,
         userUidId: exportForm.value.userUidId!,
-        usedStartDate:'',
-        usedEndDate:'',
-        createStartDate:'',
-        createEndDate:''
+        usedStartDate: '',
+        usedEndDate: '',
+        createStartDate: '',
+        createEndDate: ''
     }
     if (exportForm.value.useTime) {
         params.usedStartDate = dayjs(exportForm.value.useTime[0]).format('YYYY-MM-DD HH:mm:ss');
@@ -307,8 +308,23 @@ const columns: DataTableColumns<Row> = [
                             bordered: true,
                         },
                         onPositiveClick: async () => {
-                            const { code, msg } = await replaceCodeApi({ shortCode: row.shortCode })
-                            code === 0 ? message.success("删除成功") : message.error(msg)
+                            const { code, data, msg } = await replaceCodeApi({ shortCode: row.shortCode })
+                            if (code === 0) {
+                                dialog.success({
+                                    title: '重置成功',
+                                    content: data,
+                                    positiveText: '复制',
+                                    positiveButtonProps: {
+                                        type: 'info',
+                                    },
+                                    onPositiveClick: () => {
+                                        copyLink([data])
+                                    }
+                                })
+                            } else {
+                                message.error(msg)
+                            }
+                            getShortCode()
                         }
                     },
                     {
@@ -343,6 +359,7 @@ const columns: DataTableColumns<Row> = [
                         onPositiveClick: async () => {
                             const { code, msg } = await deleteCodeApi({ shortCode: row.shortCode })
                             code === 0 ? message.success("删除成功") : message.error(msg)
+                            getShortCode()
                         }
                     },
                     {
@@ -393,7 +410,7 @@ const columns: DataTableColumns<Row> = [
                     </n-gi>
                     <n-gi>
                         <n-form-item>
-                            <n-input v-model:value="linkForm.url" placeholder="请输入劵金额" clearable />
+                            <n-input v-model:value="linkForm.url" placeholder="请输入链接" clearable />
                         </n-form-item>
                     </n-gi>
                     <n-gi :offset="2">

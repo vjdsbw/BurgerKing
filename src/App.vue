@@ -1,13 +1,15 @@
 <script setup lang="ts" name="App"></script>
 
 <template>
-  <n-message-provider>
-    <router-view v-slot="{ Component, route }">
-      <transition name="MainFade" mode="out-in">
-        <component :is="Component" :key="route.path" />
-      </transition>
-    </router-view>
-  </n-message-provider>
+  <n-dialog-provider>
+    <n-message-provider>
+      <router-view v-slot="{ Component, route }">
+        <transition name="MainFade" mode="out-in">
+          <component :is="Component" :key="route.path" />
+        </transition>
+      </router-view>
+    </n-message-provider>
+  </n-dialog-provider>
 </template>
 
 <style scoped lang="scss">
