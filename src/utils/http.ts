@@ -45,6 +45,9 @@ class RequestHttp {
                 if (user.code) {
                     config.headers.set('code', user.code);
                 }
+                if (user.sign) {
+                    config.headers.set('sign', user.sign);
+                }
                 return config;
             },
             (error: AxiosError) => {

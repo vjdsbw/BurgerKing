@@ -68,7 +68,7 @@ export default defineConfig({
     port:5174,
     proxy: {
       '^/api': {
-        target: 'http://122.51.67.196:12001/hanbao',
+        target: 'http://122.51.67.196:12002/hanbao',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

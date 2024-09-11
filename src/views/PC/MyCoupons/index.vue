@@ -178,6 +178,11 @@ const columns: DataTableColumns<Row> = [
         align: "center"
     },
     {
+        title: "待使用链接数",
+        key: "urlNum",
+        align: "center"
+    },
+    {
         title: "可用数量",
         key: "num",
         align: "center"

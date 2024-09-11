@@ -33,14 +33,9 @@ export const goodInfoApi = () => http.get("/api/good/info");
 // 查询商品详情
 export const goodDetailApi = (params: { storeCode: string }) => http.get("/api/good/detail", params);
 
-// 优惠计算
-export const promotionCalculateApi = (params: any) => http.post("/api/order/promotionCalculate", params);
 
-//订单计算
-export const orderCalculateApi = (params: any) => http.post("/api/order/orderCalculate", params);
-
-// 创建订单
-export const orderCreateApi = (params: any) => http.post("/api/order/orderCreate", params);
+//创建订单
+export const orderCreateApi = (params: any) => http.post("/api/order/create", params);
 
 //获取salesSceneexport 
 export const salesSceneApi = (params: { storeCode: string }) => http.get("/api/store/sales_scene", params);

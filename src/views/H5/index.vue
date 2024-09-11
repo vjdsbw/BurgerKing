@@ -11,6 +11,17 @@ const searchValue = ref<string>('');
 
 const orderRestaurant = (shop: any) => {
     order.saveOrderShop(shop);
+    showDialog({
+            title: '请确认您的自取门店',
+            message: shop.address,
+            showCancelButton: true,
+        }).then(() => {
+            router.push({
+                name: "H5-selfOrder",
+            });
+        }).catch(() => {
+            console.log('点击了取消')
+        })
     if (shop.status === '营业中') {
         showDialog({
             title: '请确认您的自取门店',
@@ -85,8 +96,10 @@ const error = (_err: any) => {
 onMounted(() => {
     const searchParams = new URL(location.href).searchParams
     const code = searchParams.get('code') //'tnvvDyjHkRC'
-    if (code) {
+    const sign = searchParams.get('sign') //'tnvvDyjHkRC'
+    if (code && sign) {
         user.setCode(code) //E96eR2hxZRC
+        user.setSign(sign)
         getCodeStutus()
     }
 })

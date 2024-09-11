@@ -5,6 +5,7 @@ interface UserState {
     token: string;
     code: string;
     userName: string;
+    sign:string
 
 }
 
@@ -14,7 +15,8 @@ export const useUserStore = defineStore({
         return {
             token: "",
             code: "",
-            userName: ""
+            userName: "",
+            sign:""
         };
     },
     actions: {
@@ -22,11 +24,13 @@ export const useUserStore = defineStore({
             this.userName = name;
         },
         setToken(token: UserState['token']) {
-            console.log(token,"xxxxxxxxxxxxxxxxxxxxx")
             this.token = token;
         },
         setCode(Code: UserState['token']) {
             this.code = Code;
+        },
+        setSign(sign: UserState['sign']) {
+            this.sign = sign;
         },
     },
     persist: piniaPersistConfig('user')

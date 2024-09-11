@@ -21,8 +21,26 @@ const PackageForm = ref<{ principal: number; snack: number; drink: number }>({
 })
 
 const selectPackage = (item: any, itm: any) => {
-    item.itemsList.forEach((e: any) => e.isDefault = 'N');
-    itm.isDefault = 'Y';
+    console.log(item, "xxxxxxxxxxxxxxxxxxxxx");
+    if (item.saleQty === 1) {
+        item.itemsList.forEach((e: any) => e.isDefault = 'N');
+        itm.isDefault = 'Y';
+    } else {
+        let saleNum:string[] = [];
+        item.itemsList.forEach((e: any) => {
+            if (e.isDefault === 'Y') {
+                saleNum.push(e.rowId)
+            }
+        });
+        if (saleNum.length < item.saleQty && !saleNum.includes(itm.rowId)) {
+            itm.isDefault = itm.isDefault === 'Y' ? 'N' : 'Y';
+        } else if (saleNum.length <= item.saleQty && saleNum.includes(itm.rowId)) {
+            itm.isDefault = itm.isDefault === 'Y' ? 'N' : 'Y';
+        } else {
+            const text = item.roundName.substring(item.roundName.length - 2);
+            showToast(text + '最多选择' + item.saleQty + '件')
+        }
+    }
 }
 
 
@@ -37,9 +55,9 @@ const tasteChoice = (index: number, idx: number) => {
 }
 
 const tastChange = (index: number) => {
-    if (goodInfo.value[flavor.value.outNum].roundName === '选择饮料') {
-        goodInfo.value[flavor.value.outNum].itemsList[flavor.value.inNum].drinkList.forEach((item:any) => item.choosed = false)
-        goodInfo.value[flavor.value.outNum].itemsList[flavor.value.inNum].drinkList[index].choosed = true;
+    if (goodInfo.value[flavor.value.outNum].itemsList[flavor.value.inNum].tasteList[0].isDrink === "1") {
+        goodInfo.value[flavor.value.outNum].itemsList[flavor.value.inNum].tasteList.forEach((item: any) => item.choosed = false)
+        goodInfo.value[flavor.value.outNum].itemsList[flavor.value.inNum].tasteList[index].choosed = true;
     }
 }
 
@@ -48,19 +66,14 @@ const determineTaste = () => {
 }
 
 const goodInfo = ref<any>([])
+const selectGoods = ref<any>([])
 const getGoodDetail = async () => {
-
     const { code, data, msg } = await goodDetailApi({ storeCode: order.orderShop.storeCode });
     if (code === 0) {
-        const goodInfoList = data.map((item:any) => {
-            const newObj = { ...item };
-            newObj.itemsList.forEach((itm:any) => {
-                if (item.roundName === '选择饮料' && itm.drinkList.length > 0) {
-                    itm.drinkList = itm.drinkList.map((it:any) => ({ ...it, choosed: false }));
-                }
-                if (item.roundName === '选择主食' && itm.tasteList.length > 0) {
-                    itm.tasteList = itm.tasteList.map((it:any) => ({ ...it, choosed: false }));
-                }
+        const goodInfoList = data.map((item: any) => {
+            const newObj = JSON.parse(JSON.stringify(item));
+            newObj.itemsList.forEach((itm: any) => {
+                itm.tasteList = itm.tasteList.map((it: any) => ({ ...it, choosed: false }));
             });
             return newObj;
         });
@@ -72,9 +85,27 @@ const getGoodDetail = async () => {
 
 const preOrder = () => {
     order.saveOrderInfo(goodInfo.value)
-    router.push({
-        name: "H5-selfOrder",
-    })
+    let pass = true
+    let showMsg = ''
+    goodInfo.value.forEach((item: any) => {
+        let skuIdList = []
+        item.itemsList.forEach((itm: any) => {
+            if (itm.isDefault === 'Y') {
+                skuIdList.push(itm.skuId)
+            }
+        })
+        if (item.saleQty !== skuIdList.length) {
+            pass = false
+            showMsg = item.roundName.substring(item.roundName.length - 2) + '最多选择' + item.saleQty + '件';
+        }
+    });
+    if (pass) {
+        router.push({
+            name: "H5-selfOrder",
+        })
+    } else {
+        showToast(showMsg)
+    }
 }
 
 
@@ -106,7 +137,7 @@ onMounted(() => {
                             <p>{{ itm.skuName }}</p>
                         </div>
                         <div class="specifications" @click="tasteChoice(index, idx)"
-                            v-show="(itm.tasteList.length > 0 || itm.drinkList.length > 0) && itm.isDefault === 'Y'">
+                            v-show="(itm.tasteList.length > 0) && itm.isDefault === 'Y'">
                             口味选择
                         </div>
                     </div>
@@ -118,14 +149,12 @@ onMounted(() => {
         <van-popup v-model:show="actionSheetShow" round closeable position="bottom" :style="{ height: '30%' }">
             <div class="popup-content">
                 <h4>{{ goodInfo[flavor.outNum].itemsList[flavor.inNum].skuName }}</h4>
-                <div v-show="goodInfo[flavor.outNum].roundName === '选择饮料'">
-                    <van-checkbox v-for="(e, index) in goodInfo[flavor.outNum].itemsList[flavor.inNum].drinkList"
-                        :key="e.id" v-model="e.choosed" @click="tastChange(index)">{{ e.skuName }}</van-checkbox>
-                </div>
-                <div v-show="goodInfo[flavor.outNum].roundName === '选择主食'">
-                    <van-checkbox v-for="(e, index) in goodInfo[flavor.outNum].itemsList[flavor.inNum].tasteList"
-                        :key="e.id" v-model="e.choosed" @click="tastChange(index)">{{ e.skuName }}</van-checkbox>
-                </div>
+                <van-row gutter="20">
+                    <van-col span="12" v-for="(e, index) in goodInfo[flavor.outNum].itemsList[flavor.inNum].tasteList"
+                        :key="e.id">
+                        <van-checkbox v-model="e.choosed" @click="tastChange(index)">{{ e.skuName }}</van-checkbox>
+                    </van-col>
+                </van-row>
                 <van-button type="primary" class="popup-content-btn" round @click="determineTaste">确定口味</van-button>
             </div>
 
