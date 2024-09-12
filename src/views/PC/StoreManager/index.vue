@@ -76,20 +76,23 @@ onMounted(() => {
 
 <template>
     <n-card class="store-management-box" :bordered="false">
-        <n-space style="margin: 20px 0px;">
-            <n-select placeholder="请输入门店名称" :options="storeOptions" filterable remote clearable :loading="selectLoading"
-                label-field="storeName" value-field="storeCode" @search="handleSearch" @update:value="selectChange" />
-            <n-button type="info" :loading="bingLoading" @click="bind"> 绑定门店</n-button>
-            <n-button type="info" :loading="infoLoading" @click="getBindInfo"> 查询已绑定门店信息</n-button>
-        </n-space>
-        <n-descriptions label-placement="left" title="门店详情" :column="1">
-            <n-descriptions-item label="门店名称">{{ storeInfo.storeName }}</n-descriptions-item>
-            <n-descriptions-item label="省">{{ storeInfo.province }}</n-descriptions-item>
-            <n-descriptions-item label="区">{{ storeInfo.area }}</n-descriptions-item>
-            <n-descriptions-item label="市">{{ storeInfo.city }}</n-descriptions-item>
-            <n-descriptions-item label="详细地址">{{ storeInfo.address }}</n-descriptions-item>
-            <n-descriptions-item label="营业时间"> {{ storeInfo.busiTime }}</n-descriptions-item>
-        </n-descriptions>
+        <n-card :bordered="false">
+            <n-space style="margin: 20px 0px;">
+                <n-select placeholder="请输入门店名称" :options="storeOptions" filterable remote clearable
+                    :loading="selectLoading" label-field="storeName" value-field="storeCode" @search="handleSearch"
+                    @update:value="selectChange" />
+                <n-button type="info" :loading="bingLoading" @click="bind"> 绑定门店</n-button>
+                <n-button type="info" :loading="infoLoading" @click="getBindInfo"> 查询已绑定门店信息</n-button>
+            </n-space>
+            <n-descriptions label-placement="left" title="门店详情" :column="1">
+                <n-descriptions-item label="门店名称">{{ storeInfo.storeName }}</n-descriptions-item>
+                <n-descriptions-item label="省">{{ storeInfo.province }}</n-descriptions-item>
+                <n-descriptions-item label="区">{{ storeInfo.area }}</n-descriptions-item>
+                <n-descriptions-item label="市">{{ storeInfo.city }}</n-descriptions-item>
+                <n-descriptions-item label="详细地址">{{ storeInfo.address }}</n-descriptions-item>
+                <n-descriptions-item label="营业时间"> {{ storeInfo.busiTime }}</n-descriptions-item>
+            </n-descriptions>
+        </n-card>
     </n-card>
 </template>
 

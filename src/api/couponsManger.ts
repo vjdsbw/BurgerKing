@@ -78,3 +78,6 @@ export const bindStoreApi = (params: { storeCode: string }) => http.post("/conso
 
 //查询你绑定的门店信息
 export const bindInfoApi = () => http.get("/console/store/default_info");
+
+// 门店菜单
+export const storeMenuApi = (params: { storeCode?: string }) => http.get("/console/store/menu", params);

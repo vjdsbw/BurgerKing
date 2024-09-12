@@ -42,3 +42,4 @@ export const salesSceneApi = (params: { storeCode: string }) => http.get("/api/s
 
 // 订单详情
 export const orderDetailApi = () => http.get("/api/order/orderInfo");
+

@@ -163,8 +163,9 @@ const columns: DataTableColumns<Row> = [
         title: "序号",
         key: "couponId",
         align: "center",
-        render: (_rowData: Row, rowIndex: number) => {
-            return rowIndex + 1
+        render: (rowData: Row) => {
+            const index = tableData.value.findIndex(item => item.couponId === rowData.couponId)
+            return index + 1
         }
     },
     {
@@ -273,21 +274,23 @@ const columns: DataTableColumns<Row> = [
                 <div v-if="linkList.length === 0">
                     <n-form ref="formRef" :model="linkForm" :rules="rules" label-placement="left" label-width="auto"
                         require-mark-placement="right-hanging">
-                        <n-form-item label="输入数量" path="num">
-                            <n-input-number clearable v-model:value="linkForm.num" :min="1" :max="rowInfo.num" />
-                        </n-form-item>
-                        <n-form-item label="有效期(天)" path="duration">
-                            <n-input-number clearable v-model:value="linkForm.duration" :min="1" />
-                        </n-form-item>
-                        <n-form-item label="限定价格(元)" path="limitPrice">
-                            <n-input-number clearable v-model:value="linkForm.limitPrice" :min="1" />
-                        </n-form-item>
-                        <n-form-item label="是否限定商品" path="confined">
-                            <n-radio-group v-model:value="linkForm.confined">
-                                <n-radio :value="0">否</n-radio>
-                                <n-radio :value="1">是</n-radio>
-                            </n-radio-group>
-                        </n-form-item>
+                        <n-grid :cols="24" :x-gap="24">
+                            <n-form-item-gi :span="12" label="输入数量" path="num">
+                                <n-input-number clearable v-model:value="linkForm.num" :min="1" />
+                            </n-form-item-gi>
+                            <n-form-item-gi :span="12" label="有效期(天)" path="duration">
+                                <n-input-number clearable v-model:value="linkForm.duration" :min="1" />
+                            </n-form-item-gi>
+                            <n-form-item-gi :span="12" label="限定价格(元)" path="limitPrice">
+                                <n-input-number clearable v-model:value="linkForm.limitPrice" :min="1" />
+                            </n-form-item-gi>
+                            <n-form-item-gi :span="12" label="是否限定商品" path="confined">
+                                <n-radio-group v-model:value="linkForm.confined">
+                                    <n-radio :value="0">否</n-radio>
+                                    <n-radio :value="1">是</n-radio>
+                                </n-radio-group>
+                            </n-form-item-gi>
+                        </n-grid>
                         <div class="my-coupons-box-goods-box">
                             <n-form-item v-show="linkForm.confined === 1" v-for="item in goodsInfo" :key="item.id"
                                 :label="item.roundName">

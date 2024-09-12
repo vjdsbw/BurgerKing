@@ -79,10 +79,11 @@ const rowInfo = ref<Row>({
 const columns: DataTableColumns<Row> = [
     {
         title: "序号",
-        key: "couponCenterId",
+        key: "couponId",
         align: "center",
-        render: (_rowData: object, rowIndex: number) => {
-            return rowIndex + 1
+        render: (rowData: Row) => {
+            const index = tableData.value.findIndex(item => item.couponId === rowData.couponId)
+            return index + 1
         }
     },
     {
