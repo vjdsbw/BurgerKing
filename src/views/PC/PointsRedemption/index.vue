@@ -1,6 +1,7 @@
 <script setup lang="ts" name="Points-Redemption">
 import { listByPhoneApi, pointListApi, pointPayApi } from "@/api/couponsManger"
 import { CloseCircleOutline } from '@vicons/ionicons5'
+import type { DataTableColumns } from 'naive-ui'
 import { useMessage } from 'naive-ui'
 
 const message = useMessage()
@@ -28,7 +29,7 @@ const couponList = async () => {
 }
 
 const selectLoading = ref<boolean>(false)
-const phone = ref<string | null>(null)
+const phone = ref<number | null>(null)
 const phoneList = ref<{ label: string, phone: string, value: number }[]>([])
 const getPhoneList = async () => {
     const { code, data, msg } = await listByPhoneApi({});
@@ -93,7 +94,7 @@ const columns: DataTableColumns<Row> = [
                             let params = {
                                 goodId: row.goodId,
                                 sectionId: row.sectionId,
-                                userUidId: phone.value
+                                userUidId: phone.value!
                             }
                             const { code, data, msg } = await pointPayApi(params)
                             if (code === 0) {
