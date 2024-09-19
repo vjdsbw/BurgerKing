@@ -80,14 +80,7 @@
     "watchEffect": true,
     "watchPostEffect": true,
     "watchSyncEffect": true,
-    "showDialog": true,
-    "showToast": true,
-    "showConfirmDialog": true,
-    "NButton": true,
     "NIcon": true,
-    "NPopconfirm": true,
-    "NPopover": true,
-    "NTooltip": true,
-    "NULL": true
+    "NButton": true
   }
 }

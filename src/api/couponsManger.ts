@@ -65,7 +65,7 @@ export const sendCouponApi = (params: {
 }) => http.post("/console/coupon/send_coupon", params);
 
 //查询商品详情
-export const goodsDetailApi = (params: { sellType: number, skuCode: string }) => http.get("/console/goods/detail", params);
+export const goodsDetailApi = (params: { sellType: number, skuCode: string, storeCode?: string }) => http.get("/console/goods/detail", params);
 
 //门店列表查询
 export const storeListApi = (params: { storeName: string }) => http.get("/console/store/list", params);
@@ -81,3 +81,15 @@ export const bindInfoApi = () => http.get("/console/store/default_info");
 
 // 门店菜单
 export const storeMenuApi = (params: { storeCode?: string }) => http.get("/console/store/menu", params);
+
+//获取我的卡券包列表-全量-用于商品创建链接时添加券的券列表查询
+export const packageListApi = (params: { storeCode?: string, userUidId: number }) => http.get("/console/coupon/my_package_list", params);
+
+//批量生成短码 - 商品
+export const batchGenForProductApi = (params: any) => http.post("/console/short_code/batchGenForProduct", params);
+
+//查询积分商品列表-全量
+export const pointListApi = (params: { userUidId: number }) => http.get("/console/point/good_list", params);
+
+//积分兑换商品
+export const pointPayApi = (params: { goodId: string; sectionId: string; userUidId: number }) => http.post("/console/point/pay", params);

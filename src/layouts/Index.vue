@@ -1,7 +1,7 @@
 <script setup lang="ts" name="Layout">
 import avatar from "@/assets/PC/avatar.png";
 import { logoutApi } from "@/api/login";
-import { Home, LogoLinkedin, NewspaperOutline, PeopleCircle,LocationSharp,BagHandleSharp } from '@vicons/ionicons5'
+import { Home, LogoLinkedin, NewspaperOutline, PeopleCircle,LocationSharp,BagHandleSharp,GitCompareSharp } from '@vicons/ionicons5'
 import { Store } from "@/store";
 import type { MenuOption } from 'naive-ui'
 const { user, global } = Store();
@@ -68,6 +68,11 @@ const menuOptions: MenuOption[] = [
         label: '商品管理',
         key: 'PC-MerchandiseManager',
         icon: renderIcon(BagHandleSharp)
+    },
+    {
+        label: '积分兑换',
+        key: 'PC-PointsRedemption',
+        icon: renderIcon(GitCompareSharp)
     },
 ];
 

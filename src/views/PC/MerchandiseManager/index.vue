@@ -1,5 +1,5 @@
 <script setup lang="ts" name="Merchandise-Manager">
-import { storeListApi, storeMenuApi, goodsDetailApi, listByPhoneApi, myListApi } from "@/api/couponsManger"
+import { storeListApi, storeMenuApi, goodsDetailApi, listByPhoneApi, packageListApi, batchGenForProductApi } from "@/api/couponsManger"
 import { useMessage } from 'naive-ui'
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 
@@ -45,6 +45,7 @@ interface CouponOpt {
     num: number,
     sellType: number;
     skuCode: string;
+    urlNum?: number;
 }
 
 const selectLoading = ref<boolean>(false)
@@ -60,8 +61,12 @@ const handleSearch = async (value: string) => {
     selectLoading.value = false
 }
 
+const selectStore = ref<string | null>(null)
 const menuOptions = ref<MenuCoupon[]>([])
-const selectChange = async (value: string) => getStorMenu({ storeCode: value })
+const selectChange = async (value: string) => {
+    selectStore.value = value
+    getStorMenu({ storeCode: value })
+}
 
 const getStorMenu = async (params: { storeCode?: string }) => {
     const { code, data, msg } = await storeMenuApi(params)
@@ -95,7 +100,13 @@ onMounted(() => {
 const couponOption = ref<CouponOpt[]>([])
 
 const couponList = async (value: number) => {
-    const { code, data, msg } = await myListApi({ userUidId: value })
+    let params: any = {
+        userUidId: value
+    }
+    if (selectStore.value) {
+        params.storeCode = selectStore.value
+    }
+    const { code, data, msg } = await packageListApi(params)
     console.log(code, data, msg)
     if (code === 0) {
         couponOption.value = data
@@ -105,6 +116,7 @@ const couponList = async (value: number) => {
 }
 
 const couponChange = async (_value: string, option: CouponOpt) => {
+    linkForm.value.currentPrice = option.currentPrice
     const { code, data, msg } = await goodsDetailApi({ sellType: option.sellType, skuCode: option.skuCode })
     if (code === 0) {
         data.forEach((e: any) => {
@@ -131,17 +143,23 @@ const linkForm = ref<{
     duration: number
     confined: number
     limitPrice: number
-    addCoupon: number
-    selectCoupon: string | null
-    couponConfined: number
+    isAddCoupon: number
+    selectCoupon: string | null,
+    isMenuLimit: number
+    couponConfined: number,
+    currentPrice: string,
+    num: number
 }>({
     phone: null,
     duration: 7,
     confined: 1,
     limitPrice: 1,
-    addCoupon: 1,
+    isAddCoupon: 1,
     selectCoupon: null,
-    couponConfined: 1
+    couponConfined: 1,
+    isMenuLimit: 1,
+    currentPrice: '',
+    num: 1,
 });
 
 const generalOptions = ref<{ label: string; phone: string; value: number }[]>([])
@@ -169,6 +187,19 @@ const checKboxChange = (val: any, goods: any) => {
     });
 }
 
+const proInfo = ref<Product>({
+    description: '',
+    groupCode: '',
+    imageUrl: '',
+    menuId: '',
+    name: '',
+    productCode: '',
+    productType: '',
+    sellType: 0,
+    skuCodes: '',
+    storeMenuClassId: 0,
+    unitPrice: 0
+})
 
 const columns: DataTableColumns<Product> = [
     {
@@ -204,7 +235,13 @@ const columns: DataTableColumns<Product> = [
                         type: "info",
                         style: { width: '150px' },
                         onClick: async () => {
-                            const { code, data, msg } = await goodsDetailApi({ sellType: row.sellType, skuCode: row.skuCodes })
+                            let params: any = {
+                                sellType: row.sellType,
+                                skuCode: row.skuCodes,
+                                storeCode: selectStore.value
+                            }
+                            if (!selectStore.value) delete params.storeCode
+                            const { code, data, msg } = await goodsDetailApi(params)
                             if (code === 0) {
                                 data.forEach((e: any) => {
                                     const key = e.optionGroupId + '-' + e.id
@@ -215,6 +252,7 @@ const columns: DataTableColumns<Product> = [
                                         }
                                     })
                                 })
+                                proInfo.value = row
                                 goodsInfo.value = data;
                                 linkList.value.length = 0;
                                 linkForm.value.limitPrice = Number(row.unitPrice)
@@ -230,6 +268,84 @@ const columns: DataTableColumns<Product> = [
         }
     }
 ]
+
+const creatLoading = ref<boolean>(false)
+const createLink = async () => {
+    creatLoading.value = true;
+    let obj: any = {}
+    goodsInfo.value.forEach((item: any) => {
+        const key = item.optionGroupId + '-' + item.id
+        obj[key] = { showY: [], showN: [] }
+        item.itemsList.forEach((itm: any) => {
+            if (itm.isDefault === 'Y') {
+                obj[key].showY.push(itm.skuId)
+            } else {
+                obj[key].showN.push(itm.skuId)
+            }
+        })
+    })
+    goodsCoupon.value.forEach((item: any) => {
+        const key = item.optionGroupId + '-' + item.id
+        obj[key] = { showY: [], showN: [] }
+        item.itemsList.forEach((itm: any) => {
+            if (itm.isDefault === 'Y') {
+                obj[key].showY.push(itm.skuId)
+            } else {
+                obj[key].showN.push(itm.skuId)
+            }
+        })
+    })
+    const params = {
+        couponId: linkForm.value.selectCoupon,
+        currentPrice: linkForm.value.currentPrice,
+        goodsList: JSON.stringify(obj),
+        goodsSource: 2,
+        isAddCoupon: linkForm.value.isAddCoupon,
+        isLimit: linkForm.value.confined,
+        limitPrice: linkForm.value.limitPrice,
+        isMenuLimit: linkForm.value.isMenuLimit,
+        menuGoodsImg: proInfo.value.imageUrl,
+        menuGoodsName: proInfo.value.name,
+        menuGoodsPrice: proInfo.value.unitPrice,
+        menuId: proInfo.value.menuId,
+        num: linkForm.value.num,
+        productCode: proInfo.value.productCode,
+        storeMenuClassId: proInfo.value.storeMenuClassId,
+        userUidId: linkForm.value.phone,
+        validDay: linkForm.value.duration,
+    }
+    const { code, data, msg } = await batchGenForProductApi(params)
+    if (code === 0) {
+        message.success("创建成功")
+        linkList.value = data;
+    } else {
+        message.error(msg)
+    }
+    creatLoading.value = false;
+}
+
+const copyLink = () => {
+    const copyText = linkList.value.join('\n')
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            message.success('复制链接成功')
+            return navigator.clipboard.writeText(copyText);
+        } else {
+            // 创建 textarea
+            let textarea: any = document.createElement("textarea");
+            textarea.value = copyText;
+            textarea.style.opacity = 0;        // 使 textarea 不在 viewport，同时设置不可见
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            document.execCommand('copy') ? message.success('复制链接成功') : message.error('复制链接失败');
+            textarea.remove();
+
+        }
+    } catch (err) {
+        message.error('复制链接失败')
+    }
+}
 
 </script>
 
@@ -269,6 +385,9 @@ const columns: DataTableColumns<Product> = [
                             <n-form-item-gi :span="8" label="限定价格(元)" path="limitPrice">
                                 <n-input-number clearable v-model:value="linkForm.limitPrice" :min="1" />
                             </n-form-item-gi>
+                            <n-form-item-gi :span="8" label="生成链接数量" path="num">
+                                <n-input-number clearable v-model:value="linkForm.num" :min="1" />
+                            </n-form-item-gi>
                             <n-form-item-gi :span="8" label="是否限定商品" path="confined">
                                 <n-radio-group v-model:value="linkForm.confined">
                                     <n-radio :value="0">否</n-radio>
@@ -298,28 +417,28 @@ const columns: DataTableColumns<Product> = [
                             </n-form-item>
                         </div>
                         <n-grid :cols="24" :x-gap="24">
-                            <n-form-item-gi :span="8" label="是否添加卡劵" path="addCoupon">
-                                <n-radio-group v-model:value="linkForm.addCoupon">
+                            <n-form-item-gi :span="8" label="是否添加卡劵" path="isAddCoupon">
+                                <n-radio-group v-model:value="linkForm.isAddCoupon">
                                     <n-radio :value="0">否</n-radio>
                                     <n-radio :value="1">是</n-radio>
                                 </n-radio-group>
                             </n-form-item-gi>
                             <n-form-item-gi :span="8" label="选择卡劵" path="selectCoupon"
-                                v-show="linkForm.addCoupon === 1">
+                                v-show="linkForm.isAddCoupon === 1">
                                 <n-select v-model:value="linkForm.selectCoupon" placeholder="请选择账号"
                                     label-field="couponName" value-field="couponId" :options="couponOption" filterable
                                     remote clearable @update:value="couponChange" />
                             </n-form-item-gi>
-                            <n-form-item-gi :span="8" label="是否限定商品" path="couponConfined"
-                                v-show="linkForm.addCoupon === 1">
-                                <n-radio-group v-model:value="linkForm.couponConfined">
+                            <n-form-item-gi :span="8" label="是否限定商品" path="isMenuLimit"
+                                v-show="linkForm.isAddCoupon === 1">
+                                <n-radio-group v-model:value="linkForm.isMenuLimit">
                                     <n-radio :value="0">否</n-radio>
                                     <n-radio :value="1">是</n-radio>
                                 </n-radio-group>
                             </n-form-item-gi>
                         </n-grid>
                         <div class="my-coupons-box-goods-box">
-                            <n-form-item v-show="linkForm.addCoupon === 1 && linkForm.couponConfined === 1"
+                            <n-form-item v-show="linkForm.isAddCoupon === 1 && linkForm.isMenuLimit === 1"
                                 v-for="item in goodsCoupon" :key="item.id" :label="item.roundName">
                                 <n-scrollbar x-scrollable style="white-space: nowrap; width: 100%;">
                                     <n-checkbox-group :min="item.saleQty"
@@ -341,7 +460,7 @@ const columns: DataTableColumns<Product> = [
                         </div>
                     </n-form>
                     <n-space reverse>
-                        <n-button type="info">确认</n-button>
+                        <n-button type="info" :loading="creatLoading" @click="createLink">确认</n-button>
                         <n-button type="tertiary" @click="linkModal = false">取消</n-button>
                     </n-space>
                 </div>
@@ -349,7 +468,7 @@ const columns: DataTableColumns<Product> = [
                     <div style="height: 200px;overflow-y: scroll;">
                         <div v-for="item in linkList" :key="item">{{ item }}</div>
                     </div>
-                    <n-button type="info" style="margin-top: 10px;width: 100%;">点击复制</n-button>
+                    <n-button type="info" @click="copyLink" style="margin-top: 10px;width: 100%;">点击复制</n-button>
                 </div>
             </n-card>
         </n-modal>
