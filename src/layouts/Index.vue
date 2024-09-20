@@ -1,7 +1,7 @@
 <script setup lang="ts" name="Layout">
 import avatar from "@/assets/PC/avatar.png";
 import { logoutApi } from "@/api/login";
-import { Home, LogoLinkedin, NewspaperOutline, PeopleCircle,LocationSharp,BagHandleSharp,GitCompareSharp } from '@vicons/ionicons5'
+import { Home, LogoLinkedin, NewspaperOutline, PeopleCircle, LocationSharp, BagHandleSharp, GitCompareSharp } from '@vicons/ionicons5'
 import { Store } from "@/store";
 import type { MenuOption } from 'naive-ui'
 const { user, global } = Store();
@@ -90,7 +90,7 @@ const changeMenu = (key: string, _item: MenuOption) => {
                 <div class="header-contant">
                     <div> 欢迎使用汉堡King管理系统</div>
                     <div class="right">
-                        <div>管理员</div>
+                        <div> {{ user.userName }}</div>
                         <n-dropdown trigger="hover" :options="options" @select="handleSelect">
                             <n-avatar round size="small" :src="avatar" />
                         </n-dropdown>
