@@ -12,16 +12,14 @@ const searchValue = ref<string>('');
 const orderRestaurant = (shop: any) => {
     order.saveOrderShop(shop);
     showDialog({
-            title: '请确认您的自取门店',
-            message: shop.address,
-            showCancelButton: true,
-        }).then(() => {
-            router.push({
-                name: "H5-selfOrder",
-            });
-        }).catch(() => {
-            console.log('点击了取消')
-        })
+        title: '请确认您的自取门店',
+        message: shop.address,
+        showCancelButton: true,
+    }).then(() => {
+        router.push({
+            name: "H5-selfOrder",
+        });
+    }).catch(() => { })
     if (shop.status === '营业中') {
         showDialog({
             title: '请确认您的自取门店',
@@ -31,9 +29,7 @@ const orderRestaurant = (shop: any) => {
             router.push({
                 name: "H5-selfOrder",
             });
-        }).catch(() => {
-            console.log('点击了取消')
-        })
+        }).catch(() => { })
     } else {
         showToast('该门店未在营业时间，请选择其他门店')
     }
@@ -67,7 +63,7 @@ const getLocation = () => {
             maximumAge: 0
         });
     } else {
-        console.log("Geolocation is not supported by this browser.");
+        showToast('当前设备不支持/拒绝了定位')
     }
 }
 

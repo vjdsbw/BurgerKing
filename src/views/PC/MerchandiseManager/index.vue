@@ -107,7 +107,6 @@ const couponList = async (value: number) => {
         params.storeCode = selectStore.value
     }
     const { code, data, msg } = await packageListApi(params)
-    console.log(code, data, msg)
     if (code === 0) {
         couponOption.value = data
     } else {
@@ -300,6 +299,7 @@ const createLink = async () => {
         currentPrice: linkForm.value.currentPrice,
         goodsList: JSON.stringify(obj),
         goodsSource: 2,
+        groupCode: proInfo.value.groupCode,
         isAddCoupon: linkForm.value.isAddCoupon,
         isLimit: linkForm.value.confined,
         limitPrice: linkForm.value.limitPrice,

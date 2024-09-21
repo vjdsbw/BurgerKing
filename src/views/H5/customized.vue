@@ -21,12 +21,11 @@ const PackageForm = ref<{ principal: number; snack: number; drink: number }>({
 })
 
 const selectPackage = (item: any, itm: any) => {
-    console.log(item, "xxxxxxxxxxxxxxxxxxxxx");
     if (item.saleQty === 1) {
         item.itemsList.forEach((e: any) => e.isDefault = 'N');
         itm.isDefault = 'Y';
     } else {
-        let saleNum:string[] = [];
+        let saleNum: string[] = [];
         item.itemsList.forEach((e: any) => {
             if (e.isDefault === 'Y') {
                 saleNum.push(e.rowId)
@@ -68,7 +67,7 @@ const determineTaste = () => {
 const goodInfo = ref<any>([])
 const selectGoods = ref<any>([])
 const getGoodDetail = async () => {
-    const { code, data, msg } = await goodDetailApi({ storeCode: order.orderShop.storeCode });
+    const { code, data, msg } = await goodDetailApi({ storeCode: order.orderShop.storeCode, goodsType: order.orderGoods.goodsType });
     if (code === 0) {
         const goodInfoList = data.map((item: any) => {
             const newObj = JSON.parse(JSON.stringify(item));
@@ -84,7 +83,7 @@ const getGoodDetail = async () => {
 }
 
 const preOrder = () => {
-    order.saveOrderInfo(goodInfo.value)
+    order.saveOrderInfo({ num: order.orderGoods.num, val: goodInfo.value })
     let pass = true
     let showMsg = ''
     goodInfo.value.forEach((item: any) => {

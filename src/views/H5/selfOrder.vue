@@ -2,7 +2,7 @@
 import HamBurger from '@/assets/H5/HamBurger.png'
 import ShopBag from "@/assets/H5/ShopBag.png"
 import StoreDining from "@/assets/H5/StoreDining.png"
-import { goodInfoApi, orderCreateApi, salesSceneApi } from "@/api/storeApi"
+import { infoListApi, orderCreateApi, salesSceneApi,createAllApi } from "@/api/storeApi"
 import { Store } from "@/store";
 
 const { user, order } = Store();
@@ -19,17 +19,23 @@ const preOrder = () => {
         showCancelButton: true,
     }).then(() => {
         getOrderCreate()
-    }).catch(() => {
-        console.log('点击了取消')
-    })
+    }).catch(() => { })
 }
 
 //创建订单 
 const getOrderCreate = async () => {
+    const entriesList = Object.entries(order.orderInfo);
+    if (entriesList.length !== info.value.length) return showToast('请全部先全部选择好规格')
     const res = await salesSceneApi({ storeCode: order.orderShop.storeCode })
     const list: any = []
-    if (order.orderInfo) {
-        order.orderInfo.forEach((item: any) => {
+    let paramSkuType = '';
+    entriesList.forEach(([key, val]:[any, any]) => {
+        let productObj: any = {
+            goodsType: info.value[key].goodsType,
+            items: []
+        }
+        paramSkuType = val[0].skuType
+        val.forEach((item: any) => {
             item.itemsList.forEach((itm: any) => {
                 if (itm.isDefault === 'Y') {
                     const obj: any = {
@@ -55,39 +61,43 @@ const getOrderCreate = async () => {
                                     quantity: e.quantity,
                                     skuId: e.skuId,
                                     skuName: e.skuName,
+                                    sort: itm.sort,
                                     unitPrice: e.unitPrice
                                 })
                             }
                         });
                     }
-                    list.push(obj);
+                    productObj.items.push(obj);
                 }
             })
         });
-        const params = {
-            products: list,
-            salesScene: res.data,
-            storeCode: order.orderShop.storeCode,
-            pickupType: pickupType.value,
-            skuType: order.orderInfo[0].skuType
-        }
-        const { code, data, msg } = await orderCreateApi(params)
-        if (code === 0) {
-            router.push({ name: 'H5-orderDetail' })
-        } else {
-            showToast(msg)
-        }
+        list.push(productObj)
+    })
+    const params = {
+        products: list,
+        salesScene: res.data,
+        storeCode: order.orderShop.storeCode,
+        storeName: order.orderShop.storeName,
+        pickupType: pickupType.value,
+        skuType: paramSkuType
+    }
+    const { code, data, msg } = await createAllApi(params)
+    if (code === 0) {
+        router.push({ name: 'H5-orderDetail' })
+    } else {
+        showToast(msg)
     }
 }
 
-const selectSpecification = () => {
+const selectSpecification = (info: { imgUrl: string, name: string, goodsType: string }, index: number) => {
+    order.saveOrderGoods({ ...info, num: index })
     router.push({ name: 'H5-customized' })
 }
 
-const info = ref<{ imgUrl: string, name: string }>({ imgUrl: "", name: "" })
+const info = ref<{ imgUrl: string, name: string, goodsType: string }[]>([])
 
 const getGoodsInfo = async () => {
-    const { code, data } = await goodInfoApi()
+    const { code, data } = await infoListApi()
     if (code === 0) {
         info.value = data
     }
@@ -114,12 +124,12 @@ onMounted(() => {
         </div>
         <div class="ordering">
             <div class="foods">
-                <div class="active">
+                <div class="active" v-for="(item, index) in info" :key="index">
                     <div class="name">
-                        <van-image width="60" height="60" :src="info.imgUrl" />
-                        <p>{{ info.name }}</p>
+                        <van-image width="60" height="60" :src="item.imgUrl" />
+                        <p>{{ item.name }}</p>
                     </div>
-                    <div class="specifications" @click="selectSpecification">
+                    <div class="specifications" @click="selectSpecification(item, index)">
                         选规格
                     </div>
                 </div>
@@ -187,6 +197,7 @@ onMounted(() => {
                 width: 24%;
                 height: 7rem;
                 display: inline-block;
+                margin: 0px 10px;
 
                 .name {
                     padding: 0rem .5rem;
@@ -196,8 +207,11 @@ onMounted(() => {
 
                     p {
                         font-size: .8rem;
+                        width: 100%;
                         margin: 0px;
                         padding: 0px;
+                        white-space: nowrap;
+                        overflow-x: scroll;
                     }
                 }
 

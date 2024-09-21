@@ -31,11 +31,14 @@ export const storeListApi = (params: StoreApi.storeAddress) => http.get("/api/st
 export const goodInfoApi = () => http.get("/api/good/info");
 
 // 查询商品详情
-export const goodDetailApi = (params: { storeCode: string }) => http.get("/api/good/detail", params);
+export const goodDetailApi = (params: { storeCode: string, goodsType: string }) => http.get("/api/good/detail", params);
 
 
 //创建订单
 export const orderCreateApi = (params: any) => http.post("/api/order/create", params);
+
+//创建订单(包括菜单和券)
+export const createAllApi = (params: any) => http.post("/api/order/createAll", params);
 
 //获取salesSceneexport 
 export const salesSceneApi = (params: { storeCode: string }) => http.get("/api/store/sales_scene", params);
@@ -43,3 +46,5 @@ export const salesSceneApi = (params: { storeCode: string }) => http.get("/api/s
 // 订单详情
 export const orderDetailApi = () => http.get("/api/order/orderInfo");
 
+//查询商品基本信息
+export const infoListApi = () => http.get("/api/good/info_list");

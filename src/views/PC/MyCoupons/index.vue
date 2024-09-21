@@ -155,7 +155,6 @@ const checKboxChange = (val: any, goods: any) => {
             element.isDefault = 'N'
         }
     });
-    console.log(goods.itemsList)
 }
 
 const columns: DataTableColumns<Row> = [
