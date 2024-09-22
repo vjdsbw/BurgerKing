@@ -1,5 +1,5 @@
 <script setup lang="ts" name="Merchandise-Manager">
-import { storeListApi, storeMenuApi, goodsDetailApi, listByPhoneApi, packageListApi, batchGenForProductApi } from "@/api/couponsManger"
+import { storeListApi, storeMenuApi, goodsDetailApi, listByPhoneApi, packageListApi, batchGenForProductApi,goDetailApi } from "@/api/couponsManger"
 import { useMessage } from 'naive-ui'
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 
@@ -235,12 +235,17 @@ const columns: DataTableColumns<Product> = [
                         style: { width: '150px' },
                         onClick: async () => {
                             let params: any = {
+                                goodsSource: 2,
+                                groupCode: row.groupCode,
+                                menuId:row.menuId,
+                                productCode:row.productCode,
                                 sellType: row.sellType,
                                 skuCode: row.skuCodes,
-                                storeCode: selectStore.value
+                                storeCode: selectStore.value,
+                                storeMenuClassId:row.storeMenuClassId
                             }
                             if (!selectStore.value) delete params.storeCode
-                            const { code, data, msg } = await goodsDetailApi(params)
+                            const { code, data, msg } = await goDetailApi(params)
                             if (code === 0) {
                                 data.forEach((e: any) => {
                                     const key = e.optionGroupId + '-' + e.id

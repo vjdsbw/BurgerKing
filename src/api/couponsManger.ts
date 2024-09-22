@@ -93,3 +93,15 @@ export const pointListApi = (params: { userUidId: number }) => http.get("/consol
 
 //积分兑换商品
 export const pointPayApi = (params: { goodId: string; sectionId: string; userUidId: number }) => http.post("/console/point/pay", params);
+
+//查询商品详情
+export const goDetailApi = (params: {
+    goodsSource: number;
+    groupCode: string;
+    menuId: string;
+    productCode: string;
+    sellType: number;
+    skuCode: string;
+    storeCode: string;
+    storeMenuClassId: number;
+}) => http.post("/console/goods/goodsDetail", params);
